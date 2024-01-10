@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DEVELOPMENT_DATABASE_URL")
+  shadowDatabaseUrl = env("PRODUCTION_DATABASE_URL")
+}
+
+model department {
+  id              Int             @id @default(autoincrement())
+  department_name String          @unique @db.VarChar(50)
+  teaching_units  teaching_unit[]
+  students        student[]
+}
+
+model teaching_unit {
+  id                 Int        @id @default(autoincrement())
+  teaching_unit_name String     @db.VarChar(50)
+  department_id      Int
+  department         department @relation(fields: [department_id], references: [id])
+  subjects           subject[]
+
+  @@index([department_id], name: "teaching_unit_index_0")
+}
+
+model subject {
+  id                  Int           @id @default(autoincrement())
+  teaching_unit_id    Int
+  subject_name        String        @db.VarChar(50)
+  subject_coefficient Int
+  teachingUnit        teaching_unit @relation(fields: [teaching_unit_id], references: [id])
+  assessments         assessment[]
+
+  @@index([teaching_unit_id], name: "subject_index_1")
+}
+
+model user {
+  id              Int        @id @default(autoincrement())
+  student_id      Int?
+  professor_id    Int?
+  last_name       String     @db.VarChar(50)
+  first_name      String     @db.VarChar(50)
+  username        String     @unique @db.VarChar(30)
+  image           String?    @db.VarChar(255)
+  hashed_password String     @db.VarChar(255)
+  email           String     @unique @db.VarChar(255)
+  email_verified  Boolean    @default(false)
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  student         student?   @relation(fields: [student_id], references: [id])
+  professor       professor? @relation(fields: [professor_id], references: [id])
+}
+
+model professor {
+  id   Int    @id @default(autoincrement())
+  user user[]
+}
+
+model student {
+  id             Int        @id @default(autoincrement())
+  student_number String     @unique @db.VarChar(8)
+  department_id  Int
+  user_id        Int
+  entry_year     Int?
+  level          Int
+  department     department @relation(fields: [department_id], references: [id])
+  user           user[]
+  grades         grade[]
+
+  @@index([student_number], name: "student_index_2")
+  @@index([department_id], name: "student_index_3")
+}
+
+model assessment {
+  id                 Int      @id @default(autoincrement())
+  subject_id         Int
+  type_of_assessment String   @db.VarChar(50)
+  date_of_assessment DateTime @default(now())
+  coefficient        Int
+  file_name          String   @db.VarChar(255)
+  period             Int
+  semester           Int
+  subject            subject  @relation(fields: [subject_id], references: [id])
+  grades             grade[]
+
+  @@index([subject_id], name: "assessment_index_4")
+}
+
+model grade {
+  id            Int        @id @default(autoincrement())
+  student_id    Int
+  assessment_id Int
+  grade_value   Float
+  student       student    @relation(fields: [student_id], references: [id])
+  assessment    assessment @relation(fields: [assessment_id], references: [id])
+
+  @@index([student_id], name: "grade_index_5")
+  @@index([assessment_id], name: "grade_index_6")
+}
