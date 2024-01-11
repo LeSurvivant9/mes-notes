@@ -36,37 +36,23 @@ model subject {
   @@index([teaching_unit_id], name: "subject_index_1")
 }
 
-model user {
-  id              Int        @id @default(autoincrement())
-  student_id      Int?
-  professor_id    Int?
-  last_name       String     @db.VarChar(50)
-  first_name      String     @db.VarChar(50)
-  username        String     @unique @db.VarChar(30)
-  image           String?    @db.VarChar(255)
-  hashed_password String     @db.VarChar(255)
-  email           String     @unique @db.VarChar(255)
-  email_verified  Boolean    @default(false)
-  created_at      DateTime   @default(now())
-  updated_at      DateTime   @updatedAt
-  student         student?   @relation(fields: [student_id], references: [id])
-  professor       professor? @relation(fields: [professor_id], references: [id])
-}
-
 model professor {
-  id   Int    @id @default(autoincrement())
-  user user[]
+  id         Int       @id @default(autoincrement())
+  last_name  String    @db.VarChar(50)
+  first_name String    @db.VarChar(50)
+  account    account[]
 }
 
 model student {
   id             Int        @id @default(autoincrement())
+  last_name      String     @db.VarChar(50)
+  first_name     String     @db.VarChar(50)
   student_number String     @unique @db.VarChar(8)
   department_id  Int
-  user_id        Int
   entry_year     Int?
   level          Int
   department     department @relation(fields: [department_id], references: [id])
-  user           user[]
+  account        account[]
   grades         grade[]
 
   @@index([student_number], name: "student_index_2")
@@ -98,4 +84,63 @@ model grade {
 
   @@index([student_id], name: "grade_index_5")
   @@index([assessment_id], name: "grade_index_6")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model user {
+  id              String    @id @default(cuid())
+  name            String?   @db.VarChar(255)
+  username        String?   @unique @db.VarChar(30)
+  image           String?   @db.VarChar(255)
+  hashed_password String?   @db.VarChar(255)
+  role            UserRole  @default(USER)
+  email           String    @unique @db.VarChar(255)
+  emailVerified   DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  accounts        account[]
+}
+
+model account {
+  id                String     @id @default(cuid())
+  userId            String
+  student_id        Int?
+  professor_id      Int?
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?    @db.Text
+  access_token      String?    @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?    @db.Text
+  session_state     String?
+  user              user       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  student           student?   @relation(fields: [student_id], references: [id])
+  professor         professor? @relation(fields: [professor_id], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model verification_token {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model password_reset_token {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
 }
