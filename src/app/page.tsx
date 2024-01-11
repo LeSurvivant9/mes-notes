@@ -13,7 +13,7 @@ export default function Home() {
                     THE gestionnaire de notes de l&apos;INSA Hauts-de-France
                 </p>
                 <div>
-                    <LoginButton>
+                    <LoginButton mode={"modal"} asChild>
                         <Button variant={"secondary"} size={"lg"}>
                             Identifie toi
                         </Button>
