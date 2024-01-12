@@ -45,7 +45,7 @@ const AdminPage = () => {
                 </RoleGate>
                 <div className={"flex fle-row items-center justify-between rounded-lg border p-3 shadow-md"}>
                     <p className={"text-sm font-medium"}>
-                        Admin-only API Route
+                        Ajouter un département
                     </p>
                     <Button onClick={onApiRouteClick}>
                         Click to test
