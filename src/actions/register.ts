@@ -20,13 +20,12 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const existingUser = await getUserByEmail(email)
-
+    console.log({user: existingUser}, {mail: email})
     if (existingUser) {
         return {error: "Email already in use"}
     }
 
     const existingStudent = await getStudentByStudentNumber(student_number)
-
     if (!existingStudent || existingStudent.last_name != last_name || existingStudent.first_name != first_name) {
         return {error: "Veuillez vérifier vos informations"}
     }

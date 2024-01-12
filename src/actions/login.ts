@@ -20,6 +20,7 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
     const {email, password} = validatedFields.data;
 
     const existingUser = await getUserByEmail(email);
+    console.log({user: existingUser}, {mail: email})
     if (!existingUser || !existingUser.email || !existingUser.hashed_password) {
         return {error: "Email does not exist!"}
     }
