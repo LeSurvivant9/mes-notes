@@ -104,26 +104,23 @@ model user {
   accounts        account[]
 }
 
-model account {
-  id                String     @id @default(cuid())
-  userId            String
-  student_id        Int?
-  professor_id      Int?
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?    @db.Text
-  access_token      String?    @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?    @db.Text
-  session_state     String?
-  user              user       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  student           student?   @relation(fields: [student_id], references: [id])
-  professor         professor? @relation(fields: [professor_id], references: [id])
+enum AccountType {
+  STUDENT
+  PROFESSOR
+}
 
-  @@unique([provider, providerAccountId])
+model account {
+  id           String      @id @default(cuid())
+  user_id      String
+  student_id   Int?
+  professor_id Int?
+  type         AccountType
+  user         user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  student      student?    @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  professor    professor?  @relation(fields: [professor_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, student_id])
+  @@unique([user_id, professor_id])
 }
 
 model verification_token {

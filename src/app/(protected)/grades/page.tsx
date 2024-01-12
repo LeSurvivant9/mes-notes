@@ -1,7 +1,7 @@
-import {db} from "@/lib/db";
+import prisma from "@/lib/prisma";
 
 const GradesPage = async () => {
-    const users= await db.user.findMany()
+    const users= await prisma.user.findMany()
     return (
         <div>
             {JSON.stringify(users)}

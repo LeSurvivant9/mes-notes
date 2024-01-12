@@ -4,7 +4,7 @@ import {NewPasswordSchema} from "@/schemas";
 import {getPasswordResetTokenByToken} from "@/data/password-reset-token";
 import {getUserByEmail} from "@/data/users";
 import bcrypt from "bcryptjs";
-import {db} from "@/lib/db"
+import prisma from "@/lib/prisma"
 
 export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, token?: string | null) => {
     if (!token) {
@@ -39,12 +39,12 @@ export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, tok
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await db.user.update({
+    await prisma.user.update({
         where: {id: existingUser.id},
         data: {hashed_password: hashedPassword},
     });
 
-    await db.password_reset_token.delete({
+    await prisma.password_reset_token.delete({
         where: {id: existingToken.id},
     });
 
