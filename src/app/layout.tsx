@@ -5,6 +5,7 @@ import {SessionProvider} from "next-auth/react";
 import {auth} from "@/auth";
 import React from "react";
 import {Toaster} from "@/components/ui/sonner";
+import {Analytics} from "@vercel/analytics/react";
 
 const poppins = Poppins({subsets: ['latin'], weight: ["600"]})
 
@@ -21,6 +22,7 @@ export default async function RootLayout({children,}: Readonly<{ children: React
             <body className={poppins.className}>
             <Toaster/>
             {children}
+            <Analytics />
             </body>
             </html>
         </SessionProvider>
