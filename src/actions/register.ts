@@ -9,10 +9,12 @@ import {sendVerificationEmail} from "@/lib/mail";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
     const validatedFields = RegisterSchema.safeParse(values);
+    console.log("REGISTER")
 
     if (!validatedFields.success) {
         return {error: "Invalid field!"};
     }
+    console.log("Valide fields")
 
     const {last_name, first_name, student_number, email, password} = validatedFields.data;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,6 +30,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     if (!existingStudent || existingStudent.last_name != last_name || existingStudent.first_name != first_name) {
         return {error: "Veuillez vérifier vos informations"}
     }
+    console.log("Student exist")
 
     await db.user.create({
         data: {
@@ -35,6 +38,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             hashed_password: hashedPassword,
         }
     });
+    console.log("User created")
 
     const verificationToken = await generateVerificationToken(email);
 

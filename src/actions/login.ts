@@ -10,10 +10,12 @@ import {sendVerificationEmail} from "@/lib/mail";
 
 export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: string | null) => {
     const validatedFields = LoginSchema.safeParse(values);
+    console.log("LOGIN")
 
     if (!validatedFields.success) {
         return {error: "Invalid field!"};
     }
+    console.log("Valide fields")
 
     const {email, password} = validatedFields.data;
 
@@ -21,13 +23,14 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
     if (!existingUser || !existingUser.email || !existingUser.hashed_password) {
         return {error: "Email does not exist!"}
     }
+    console.log("User exist")
 
     if (!existingUser.emailVerified) {
         const verificationToken = await generateVerificationToken(existingUser.email);
         await sendVerificationEmail(verificationToken.email, verificationToken.token);
         return {success: "Confirmation email sent!"}
     }
-
+    console.log("User mail confirmed")
 
     try {
         await signIn("credentials", {
