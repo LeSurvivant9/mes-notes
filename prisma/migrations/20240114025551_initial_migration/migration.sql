@@ -11,6 +11,7 @@ CREATE TABLE `department` (
 CREATE TABLE `teaching_unit` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `teaching_unit_name` VARCHAR(50) NOT NULL,
+    `semester` INTEGER NOT NULL,
     `department_id` INTEGER NOT NULL,
 
     INDEX `teaching_unit_index_0`(`department_id`),
@@ -134,30 +135,3 @@ CREATE TABLE `password_reset_token` (
     UNIQUE INDEX `password_reset_token_email_token_key`(`email`, `token`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- AddForeignKey
-ALTER TABLE `teaching_unit` ADD CONSTRAINT `teaching_unit_department_id_fkey` FOREIGN KEY (`department_id`) REFERENCES `department`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `subject` ADD CONSTRAINT `subject_teaching_unit_id_fkey` FOREIGN KEY (`teaching_unit_id`) REFERENCES `teaching_unit`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `student` ADD CONSTRAINT `student_department_id_fkey` FOREIGN KEY (`department_id`) REFERENCES `department`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `assessment` ADD CONSTRAINT `assessment_subject_id_fkey` FOREIGN KEY (`subject_id`) REFERENCES `subject`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `grade` ADD CONSTRAINT `grade_student_id_fkey` FOREIGN KEY (`student_id`) REFERENCES `student`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `grade` ADD CONSTRAINT `grade_assessment_id_fkey` FOREIGN KEY (`assessment_id`) REFERENCES `assessment`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `account` ADD CONSTRAINT `account_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `account` ADD CONSTRAINT `account_student_id_fkey` FOREIGN KEY (`student_id`) REFERENCES `student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `account` ADD CONSTRAINT `account_professor_id_fkey` FOREIGN KEY (`professor_id`) REFERENCES `professor`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
