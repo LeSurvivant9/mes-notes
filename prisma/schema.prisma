@@ -18,6 +18,7 @@ model department {
 model teaching_unit {
   id                 Int        @id @default(autoincrement())
   teaching_unit_name String     @db.VarChar(50)
+  semester           Int
   department_id      Int
   department         department @relation(fields: [department_id], references: [id])
   subjects           subject[]

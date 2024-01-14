@@ -5,9 +5,11 @@ import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {RoleGate} from "@/components/auth/role-gate";
 import {FormSuccess} from "@/components/form-success";
 import {UserRole} from "@prisma/client";
-import {Button} from "@/components/ui/button";
 import {toast} from "sonner";
 import {admin} from "@/actions/admin";
+import TeachingUnitComponent from "@/app/(protected)/_components/teaching-unit";
+import DepartmentComponent from "@/app/(protected)/_components/department";
+import DepartmentForm from "@/components/admin/department-form";
 
 const AdminPage = () => {
     const onServerActionClick = () => {
@@ -16,7 +18,6 @@ const AdminPage = () => {
                 if (data.error) {
                     toast.error(data.error)
                 }
-
                 if (data.success) {
                     toast.success(data.success)
                 }
@@ -33,7 +34,7 @@ const AdminPage = () => {
             })
     }
     return (
-        <Card className={"w-[600px]"}>
+        <Card className={"w-[800px]"}>
             <CardHeader>
                 <p className={"text-2xl font-semibold text-center"}>
                     🔑Admin
@@ -43,22 +44,8 @@ const AdminPage = () => {
                 <RoleGate allowedRole={UserRole.ADMIN}>
                     <FormSuccess message={"Toi t'es ok"}/>
                 </RoleGate>
-                <div className={"flex fle-row items-center justify-between rounded-lg border p-3 shadow-md"}>
-                    <p className={"text-sm font-medium"}>
-                        Ajouter un département
-                    </p>
-                    <Button onClick={onApiRouteClick}>
-                        Click to test
-                    </Button>
-                </div>
-                <div className={"flex fle-row items-center justify-between rounded-lg border p-3 shadow-md"}>
-                    <p className={"text-sm font-medium"}>
-                        Admin-only Server Action
-                    </p>
-                    <Button onClick={onServerActionClick}>
-                        Click to test
-                    </Button>
-                </div>
+                <DepartmentComponent/>
+                <TeachingUnitComponent/>
             </CardContent>
         </Card>
     );

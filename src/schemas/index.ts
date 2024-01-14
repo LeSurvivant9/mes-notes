@@ -38,3 +38,15 @@ export const NewPasswordSchema = z.object({
         message: "Minimum 6 characters required"
     }),
 })
+
+export const DepartmentSchema = z.object({
+    id: z.number().optional(),
+    department_name: z.string().min(1),
+})
+
+export const TeachingUnitSchema = z.object({
+    id: z.number().optional(),
+    semester: z.number(),
+    teaching_unit_name: z.string().min(1),
+    department_id: z.number(),
+})

@@ -13,26 +13,22 @@ export const Navbar = () => {
 
 
     return (
-        <nav className={"absolute top-2 bg-secondary flex justify-between items-center p-4 rounded-xl w-[600px] shadow-md"}>
-            <div className={"flex gap-x-2"}>
-                <Button variant={pathname === "/client" ? "default" : "outline"} asChild>
+        <nav className={"relative w-full bg-secondary flex justify-between items-center py-4 px-10 shadow-md"}>
+            <div className={"flex gap-x-10"}>
+                <Button variant={pathname === "/grades" ? "default" : "link"} asChild>
                     <Link href={"/grades"}>
-                        <VscGraph/>Notes
+                        <VscGraph className={"h-4 w-4 mr-2"}/>Notes
                     </Link>
                 </Button>
-                <Button variant={pathname === "/server" ? "default" : "outline"} asChild>
-                    <Link href={"/server"}>
-                        <CgProfile/>Server
-                    </Link>
-                </Button>
-                <Button variant={pathname === "/admin" ? "default" : "outline"} asChild>
+
+                <Button variant={pathname === "/admin" ? "default" : "link"} asChild>
                     <Link href={"/admin"}>
-                        <CgProfile/>Admin
+                        <CgProfile className={"h-4 w-4 mr-2"}/>Admin
                     </Link>
                 </Button>
-                <Button variant={pathname === "/settings" ? "default" : "outline"} asChild>
+                <Button variant={pathname === "/settings" ? "default" : "link"} asChild>
                     <Link href={"/settings"}>
-                        <MdOutlineAdminPanelSettings/>Settings
+                        <MdOutlineAdminPanelSettings className={"h-4 w-4 mr-2"}/>Settings
                     </Link>
                 </Button>
             </div>

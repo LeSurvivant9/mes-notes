@@ -27,7 +27,7 @@ export async function sendMail({
     try {
         await transport.verify()
     } catch (error) {
-        console.log(error)
+        console.error(error)
     }
 
     try {
@@ -38,7 +38,7 @@ export async function sendMail({
             html: body,
         })
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 }
 

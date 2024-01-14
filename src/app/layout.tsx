@@ -5,7 +5,9 @@ import {SessionProvider} from "next-auth/react";
 import {auth} from "@/auth";
 import React from "react";
 import {Toaster} from "@/components/ui/sonner";
+import {clsx} from "clsx";
 import {Analytics} from "@vercel/analytics/react";
+import {SpeedInsights} from "@vercel/speed-insights/next";
 
 const poppins = Poppins({subsets: ['latin'], weight: ["600"]})
 
@@ -19,10 +21,11 @@ export default async function RootLayout({children,}: Readonly<{ children: React
     return (
         <SessionProvider session={session}>
             <html lang="fr">
-            <body className={poppins.className}>
+            <body className={clsx(poppins.className, "w-full h-full break-words overflow-auto")}>
             <Toaster/>
             {children}
-            <Analytics />
+            <SpeedInsights/>
+            <Analytics/>
             </body>
             </html>
         </SessionProvider>

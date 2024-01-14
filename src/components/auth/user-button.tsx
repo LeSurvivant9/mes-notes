@@ -6,6 +6,8 @@ import {FaUser} from "react-icons/fa";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {LogoutButton} from "@/components/auth/logout-button";
 import {ImExit} from "react-icons/im";
+import Link from "next/link";
+import {CgProfile} from "react-icons/cg";
 
 export const UserButton = () => {
     const user = useCurrentUser()
@@ -21,6 +23,11 @@ export const UserButton = () => {
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className={"w-40"} align={"end"}>
+                <DropdownMenuItem asChild>
+                    <Link href={"/profile"}>
+                        <CgProfile className={"h-4 w-4 mr-2"}/>Profil
+                    </Link>
+                </DropdownMenuItem>
                 <LogoutButton>
                     <DropdownMenuItem>
                         <ImExit className={"h-4 w-4 mr-2"}/>Déconnexion
