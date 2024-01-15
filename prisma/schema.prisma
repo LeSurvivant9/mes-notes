@@ -11,14 +11,14 @@ generator client {
 
 model department {
   id              Int             @id @default(autoincrement())
-  department_name String          @unique @db.VarChar(50)
+  department_name String          @unique @db.VarChar(255)
   teaching_units  teaching_unit[]
   students        student[]
 }
 
 model teaching_unit {
   id                 Int        @id @default(autoincrement())
-  teaching_unit_name String     @db.VarChar(50)
+  teaching_unit_name String     @db.VarChar(255)
   semester           Int
   department_id      Int
   department         department @relation(fields: [department_id], references: [id])
@@ -30,7 +30,7 @@ model teaching_unit {
 model subject {
   id                  Int           @id @default(autoincrement())
   teaching_unit_id    Int
-  subject_name        String        @db.VarChar(50)
+  subject_name        String        @db.VarChar(255)
   subject_coefficient Int
   teachingUnit        teaching_unit @relation(fields: [teaching_unit_id], references: [id])
   assessments         assessment[]

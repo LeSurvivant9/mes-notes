@@ -48,5 +48,16 @@ export const TeachingUnitSchema = z.object({
     id: z.number().optional(),
     semester: z.number(),
     teaching_unit_name: z.string().min(1),
-    department_id: z.number(),
+    department_id: z.number().int(),
+})
+
+export const SubjectSchema = z.object({
+    id: z.number().optional(),
+    teaching_unit_id: z.number().int(),
+    subject_name: z.string(),
+    subject_coefficient: z.number().int(),
+})
+
+export const StudentSchema = z.object({
+    id: z.number().optional(),
 })

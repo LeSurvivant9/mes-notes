@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import authConfig from "@/auth.config";
-import {apiAuthPrefix, authRoutes, DEFAULT_LOGIN_REDIRECT, publicRoutes} from "@/routes"
+import {apiAuthPrefix, authRoutes, DEFAULT_LOGIN_REDIRECT, forbiddenRoutes, publicRoutes} from "@/routes"
 
 const {auth} = NextAuth(authConfig)
 
@@ -11,6 +11,11 @@ export default auth((req) => {
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
     const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+    const isForbiddenRoute = forbiddenRoutes.includes(nextUrl.pathname)
+
+    if (isForbiddenRoute) {
+        return Response.redirect(new URL("/", nextUrl))
+    }
 
     if (isApiAuthRoute) {
         return null;

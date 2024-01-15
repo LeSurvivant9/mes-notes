@@ -9,41 +9,46 @@ import {sendVerificationEmail} from "@/lib/mail";
 import {AccountType} from "@prisma/client";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
-    const validatedFields = RegisterSchema.safeParse(values);
-    if (!validatedFields.success) {
-        return {error: "Invalid field!"};
-    }
-    const {last_name, first_name, student_number, email, password} = validatedFields.data;
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const existingUser = await getUserByEmail(email)
-    if (existingUser) {
-        return {error: "Email already in use"}
-    }
-
-    const existingStudent = await getStudentByStudentNumber(student_number)
-    if (!existingStudent || existingStudent.last_name != last_name || existingStudent.first_name != first_name) {
-        return {error: "Veuillez vérifier vos informations"}
-    }
-
-    const user = await prisma.user.create({
-        data: {
-            email,
-            hashed_password: hashedPassword,
+    try {
+        const validatedFields = RegisterSchema.safeParse(values);
+        if (!validatedFields.success) {
+            return {error: "Invalid field!"};
         }
-    });
+        const {last_name, first_name, student_number, email, password} = validatedFields.data;
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-    await prisma.account.create({
-        data: {
-            user_id: user.id,
-            student_id: existingStudent.id,
-            type: AccountType.STUDENT,
+        const existingUser = await getUserByEmail(email)
+        if (existingUser) {
+            return {error: "Email already in use"}
         }
-    })
 
-    const verificationToken = await generateVerificationToken(email);
+        const existingStudent = await getStudentByStudentNumber(student_number)
+        if (!existingStudent || existingStudent.last_name != last_name || existingStudent.first_name != first_name) {
+            return {error: "Veuillez vérifier vos informations"}
+        }
 
-    await sendVerificationEmail(verificationToken.email, verificationToken.token);
+        const user = await prisma.user.create({
+            data: {
+                email,
+                hashed_password: hashedPassword,
+            }
+        });
 
-    return {success: "Confirmation email sent"}
+        await prisma.account.create({
+            data: {
+                user_id: user.id,
+                student_id: existingStudent.id,
+                type: AccountType.STUDENT,
+            }
+        })
+
+        const verificationToken = await generateVerificationToken(email);
+
+        await sendVerificationEmail(verificationToken.email, verificationToken.token);
+
+        return {success: "Email de confirmation  envoyé"}
+    } catch (error) {
+        console.error(error);
+        return {error: "Oop! Quelque chose s'est mal déroulé"}
+    }
 }

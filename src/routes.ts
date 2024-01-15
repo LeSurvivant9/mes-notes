@@ -4,7 +4,6 @@
  * @type {string[]}
  */
 export const publicRoutes: string[] = [
-    "/",
     "/auth/new-verification",
     "/profile",
 ]
@@ -20,6 +19,15 @@ export const authRoutes: string[] = [
     "/auth/error",
     "/auth/reset",
     "/auth/new-password",
+]
+
+/**
+ * An array of routes that are forbidden for everyone.
+ * These routes will redirect logged-in users to /.
+ * @type {string[]}
+ */
+export const forbiddenRoutes: string[] = [
+    "/admin",
 ]
 
 /**

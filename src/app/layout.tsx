@@ -21,7 +21,7 @@ export default async function RootLayout({children,}: Readonly<{ children: React
     return (
         <SessionProvider session={session}>
             <html lang="fr">
-            <body className={clsx(poppins.className, "w-full h-full break-words overflow-auto")}>
+            <body className={clsx(poppins.className, "w-full h-full break-words")}>
             <Toaster/>
             {children}
             <SpeedInsights/>

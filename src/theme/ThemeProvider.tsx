@@ -1,7 +1,7 @@
 "use client"
-import {ThemeProviderProps} from "next-themes/dist/types";
+import {type ThemeProviderProps} from "next-themes/dist/types";
 import {ThemeProvider as NextThemesProvider} from "next-themes"
 
-export const ThemeProvider = ({children, ...props}: ThemeProviderProps) => {
+export function ThemeProvider({children, ...props}: Readonly<ThemeProviderProps>) {
     return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 };
