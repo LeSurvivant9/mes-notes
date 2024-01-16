@@ -27,7 +27,7 @@ export const authRoutes: string[] = [
  * @type {string[]}
  */
 export const forbiddenRoutes: string[] = [
-    "/test",
+    "/admin",
 ]
 
 /**
