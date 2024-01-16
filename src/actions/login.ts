@@ -15,10 +15,11 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
     }
 
     const {email, password} = validatedFields.data;
+    const lowerCaseEmail = email.toLowerCase();
 
-    const existingUser = await getUserByEmail(email);
-    if (!existingUser || !existingUser.email || !existingUser.hashed_password) {
-        return {error: "Email does not exist!"}
+    const existingUser = await getUserByEmail(lowerCaseEmail);
+    if (!existingUser?.email || !existingUser?.hashed_password) {
+        return {error: "Adresse mail non reconnue"};
     }
 
     if (!existingUser.emailVerified) {
@@ -29,18 +30,16 @@ export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl?: s
 
     try {
         await signIn("credentials", {
-            email,
+            email: lowerCaseEmail,
             password,
-            redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
+            redirectTo: callbackUrl ?? DEFAULT_LOGIN_REDIRECT,
         })
     } catch (error) {
         if (error instanceof AuthError) {
-            switch (error.type) {
-                case "CredentialsSignin":
-                    return {error: "Invalid credentials"}
-                default:
-                    return {error: "Something went wrong"}
+            if (error.type === "CredentialsSignin") {
+                return {error: "Identifiants non valides"};
             }
+            return {error: "Oop! Veuillez recharger la page et réessayer"};
         }
         throw error;
     }

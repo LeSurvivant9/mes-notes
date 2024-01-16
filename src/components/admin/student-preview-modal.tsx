@@ -1,7 +1,7 @@
 import React, {FormEvent} from "react";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {addStudents} from "@/actions/add-admin-function";
+import {addOrUpdateStudents} from "@/actions/add-admin-function";
 import {Button} from "@/components/ui/button";
 
 type StudentPreviewModalProps = {
@@ -29,7 +29,7 @@ const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({
     const upload = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setIsPending(true);
-        addStudents(students, departmentId, level)
+        addOrUpdateStudents(students, departmentId, level)
             .then((data) => {
                 onError(data?.error);
                 onSuccess(data?.success);
