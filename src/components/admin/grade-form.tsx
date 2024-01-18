@@ -13,6 +13,7 @@ import {subject, teaching_unit} from "@prisma/client";
 import GradeDialogPreview from "@/components/admin/grade/grade-preview";
 import {addGrades} from "@/actions/add-admin-function";
 import {teachingUnitStore} from "@/store/teaching-unit-store";
+import {GradeInformationType} from "@/types";
 
 export type GradeDataType = {
     student_number: string, grade_value: number,
@@ -26,8 +27,7 @@ const GradeForm = () => {
     const [isPending, startTransition] = useTransition();
     const [isPreview, setIsPreview] = useState(false);
     const [gradesData, setGradesData] = useState<GradeDataType[]>([]);
-    const [gradeInformation, setGradeInformation] = useState({});
-    const [filteredTeachingUnits, setFilteredTeachingUnits] = useState([]);
+    const [gradeInformation, setGradeInformation] = useState<GradeInformationType>();
     const [filteredSubjects, setFilteredSubjects] = useState<subject[]>([]);
 
 
@@ -64,14 +64,18 @@ const GradeForm = () => {
 
     const confirmUpload = async () => {
         setIsPreview(false);
-        startTransition(() => {
-            addGrades(gradeInformation)
-                .then((data) => {
-                    setError(data?.error);
-                    setSuccess(data?.success);
-                });
-        });
-        console.log("C'est parti")
+        if (gradeInformation) {
+            startTransition(() => {
+                addGrades(gradeInformation)
+                    .then((data) => {
+                        setError(data?.error);
+                        setSuccess(data?.success);
+                    });
+            });
+            console.log("C'est parti");
+        } else {
+            console.error("Informations de note non définies");
+        }
     };
 
     const filterSubject = (selectedSemester: number) => {

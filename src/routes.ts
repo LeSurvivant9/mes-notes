@@ -17,7 +17,8 @@ export const authRoutes: string[] = ["/auth/login", "/auth/register", "/auth/err
  * These routes will redirect logged-in users to /.
  * @type {string[]}
  */
-export const forbiddenRoutes: string[] = [// "/admin",
+export const forbiddenRoutes: string[] = [
+    "/admin",
 ];
 
 /**
