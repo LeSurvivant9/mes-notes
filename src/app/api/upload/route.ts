@@ -26,7 +26,9 @@ export async function POST(req: NextRequest) {
                 while ((match = regex.exec(text)) !== null) {
                     const studentNumber = match[0].substr(0, 8);
                     const gradeValue = match[1] ? parseFloat(match[1]) : null;
-                    grades.push({student_number: studentNumber, grade_value: gradeValue});
+                    if (gradeValue !== null) {
+                        grades.push({student_number: studentNumber, grade_value: gradeValue});
+                    }
                 }
                 resolve(JSON.stringify(grades));
             });

@@ -1,15 +1,24 @@
 import React from 'react';
-import {assessmentStore, gradeStore, studentStore} from "@/store/admin-store"
+import {gradeStore, studentStore} from "@/store/admin-store"
 import {Dialog, DialogContent, DialogTrigger} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {assessment, grade, student} from "@prisma/client";
+import {assessment, grade, student, subject} from "@prisma/client";
 import GradeForm from "@/components/admin/grade-form";
+import {assessmentStore} from "@/store/assessment-store";
+import {subjectStore} from "@/store/subject-store";
 
 const GradeComponent = () => {
     const grades = gradeStore<grade[]>((state: any) => state.grades);
     const assessments = assessmentStore<assessment[]>((state: any) => state.assessments);
     const students = studentStore<student[]>((state: any) => state.students);
+    const subjects = subjectStore<subject[]>((state: any) => state.subjects);
+
+    const firstGrade = grades[0];
+    const fileName = assessments.filter(assessment => assessment.id === firstGrade.assessment_id)[0]?.file_name;
+    const coefficient = assessments.filter(assessment => assessment.id === firstGrade.assessment_id)[0]?.coefficient;
+    const subjectId = assessments.filter(assessment => assessment.id === firstGrade.assessment_id)[0]?.subject_id;
+    const subjectName = subjects.filter(subject => subject.id === subjectId)[0]?.subject_name;
 
     const handleDelete = async (departmentId: number | undefined) => {
         // Logique de suppression ici
@@ -29,7 +38,6 @@ const GradeComponent = () => {
                 <Button className={"w-full"}>Ajouter</Button>
             </DialogTrigger>
             <DialogContent>
-                {/*<h1>Bonjour</h1>*/}
                 <GradeForm/>
             </DialogContent>
         </Dialog>
@@ -48,14 +56,10 @@ const GradeComponent = () => {
                     <TableCell>
                         {students.filter(student => student.id === grade.student_id)[0]?.student_number}
                     </TableCell>
-                    <TableCell>
-                        {grade.grade_value}
-                    </TableCell>
-                    <TableCell className="">{grade.assessment_id}</TableCell>
-                    <TableCell className="">{grade.assessment_id}</TableCell>
-                    <TableCell>
-                        {assessments.filter(assessment => assessment.id === grade.student_id)[0]?.file_name}
-                    </TableCell>
+                    <TableCell>{grade.grade_value}</TableCell>
+                    <TableCell>{coefficient}</TableCell>
+                    <TableCell>{fileName}</TableCell>
+                    <TableCell>{subjectName}</TableCell>
                     <TableCell className={"p-0 m-0 gap-x-0"}>
                         <Button onClick={() => handleEdit(grade.id)}>Modifier</Button>
                     </TableCell>

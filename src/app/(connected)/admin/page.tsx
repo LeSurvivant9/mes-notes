@@ -9,15 +9,21 @@ import DepartmentComponent from "@/app/(connected)/_components/department";
 import Container from "@/components/ui/container";
 import SubjectComponent from "@/app/(connected)/_components/subject";
 import StudentComponent from "@/app/(connected)/_components/student";
-import {departmentStore, studentStore, subjectStore} from "@/store/admin-store";
-import {getDepartments, getStudents, getSubjects} from "@/actions/admin";
+import {departmentStore, gradeStore, studentStore} from "@/store/admin-store";
+import {getAssessments, getDepartments, getGrades, getStudents, getSubjects, getTeachingUnits} from "@/actions/admin";
 import GradeComponent from "@/app/(connected)/_components/grade-component";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
+import {subjectStore} from "@/store/subject-store";
+import {assessmentStore} from "@/store/assessment-store";
+import {teachingUnitStore} from "@/store/teaching-unit-store";
 
 const AdminPage = () => {
     const setStudents = studentStore((state: any) => state.setStudents);
     const setDepartments = departmentStore((state: any) => state.setDepartments);
     const setSubjects = subjectStore((state: any) => state.setSubjects);
+    const setGrades = gradeStore((state: any) => state.setGrades);
+    const setAssessments = assessmentStore((state: any) => state.setAssessments);
+    const setTeachingUnits = teachingUnitStore((state: any) => state.setTeachingUnits);
 
     useEffect(() => {
         const fetchStudents = async () => {
@@ -32,10 +38,29 @@ const AdminPage = () => {
             const subjects = await getSubjects();
             setSubjects(subjects)
         };
+
+        const fetchGrades = async () => {
+            const grades = await getGrades();
+            setGrades(grades)
+        };
+
+        const fetchAssessments = async () => {
+            const assessments = await getAssessments();
+            setAssessments(assessments);
+        };
+
+        const fetchTeachingUnits = async () => {
+            const teachingUnits = await getTeachingUnits();
+            setTeachingUnits(teachingUnits);
+        };
+
         fetchStudents();
         fetchDepartments();
         fetchSubjects();
-    }, [setStudents, setDepartments, setSubjects]);
+        fetchGrades();
+        fetchAssessments();
+        fetchTeachingUnits();
+    }, [setStudents, setDepartments, setSubjects, setGrades, setAssessments, setTeachingUnits]);
 
     return (<AdminProvider>
         <Container>

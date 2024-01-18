@@ -112,16 +112,15 @@ export const addGrades = async (gradeInformation: GradeInformationType) => {
                 assessment_id: undefined,
             }))
             .filter(gradeData => gradeData.student_id !== undefined);
-
         await prisma.$transaction(async (prisma) => {
             const assessment = await prisma.assessment.create({data: assessmentData});
-            await Promise.all(gradesData.map(gradeData => prisma.grade.create({
-                data: {
-                    ...gradeData, student_id: gradeData.student_id as number, assessment_id: assessment.id,
-                }
-            })));
+            await prisma.grade.createMany({
+                data: gradesData.map(gradeData => ({
+                    ...gradeData, student_id: gradeData.student_id as number, assessment_id: assessment.id
+                })),
+                skipDuplicates: true,
+            });
         });
-
         response = {success: `Notes de ${data.length} élèves ajoutées avec succès`};
     } catch (error) {
         console.error(`Problème avec l'upload des notes : ${error}`);
