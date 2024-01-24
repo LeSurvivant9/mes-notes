@@ -17,20 +17,25 @@ export async function POST(req: NextRequest) {
             const pdfParser = new (PDFParser as any)(null, 1);
 
             pdfParser.on('pdfParser_dataError', (errData: any) => console.log(errData.parserError));
-            pdfParser.on('pdfParser_dataReady', () => {
+            pdfParser.on('pdfParser_dataReady', async () => {
                 const text = (pdfParser as any).getRawTextContent();
                 const regex = /2\d{7}(\d+\.?\d*)?/g;
                 let match;
                 const grades = [];
 
                 while ((match = regex.exec(text)) !== null) {
-                    const studentNumber = match[0].substr(0, 8);
+                    const studentNumber = match[0].substring(0, 8);
                     const gradeValue = match[1] ? parseFloat(match[1]) : null;
                     if (gradeValue !== null) {
                         grades.push({student_number: studentNumber, grade_value: gradeValue});
                     }
                 }
                 resolve(JSON.stringify(grades));
+                try {
+                    await fs.unlink(tempFilePath);
+                } catch (err) {
+                    console.error(`Erreur lors de la suppression du fichier temporaire: ${err}`);
+                }
             });
 
             pdfParser.loadPDF(tempFilePath);

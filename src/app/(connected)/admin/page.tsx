@@ -9,7 +9,8 @@ import DepartmentComponent from "@/app/(connected)/_components/department";
 import Container from "@/components/ui/container";
 import SubjectComponent from "@/app/(connected)/_components/subject";
 import StudentComponent from "@/app/(connected)/_components/student";
-import {departmentStore, gradeStore, studentStore} from "@/store/admin-store";
+import {departmentStore, studentStore} from "@/store/admin-store";
+import {gradeStore} from "@/store/grade-store"
 import {getAssessments, getDepartments, getGrades, getStudents, getSubjects, getTeachingUnits} from "@/actions/admin";
 import GradeComponent from "@/app/(connected)/_components/grade-component";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";

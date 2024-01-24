@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import {getGrades} from "@/actions/admin";
 
 export const getUserByEmail = async (email: string) => {
     try {
@@ -23,3 +24,27 @@ export const getStudentByStudentNumber = async (studentNumber: string) => {
         return null;
     }
 };
+
+export const getStudentByStudentId = async (studentId: number | null) => {
+    if (!studentId) return null;
+
+    try {
+        return await prisma.student.findUnique({where: {id: studentId}});
+    } catch {
+        return null;
+    }
+};
+
+export const getStudentByUserId = async (userId: string) => {
+    try {
+        const existingAccount = await prisma.account.findFirst({
+            where: {user_id: userId}
+        })
+
+        if (!existingAccount) return null;
+
+        return await getStudentByStudentId(existingAccount?.student_id);
+    } catch {
+        return null;
+    }
+}

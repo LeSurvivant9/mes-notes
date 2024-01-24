@@ -10,16 +10,6 @@ export const departmentStore = create((set => ({
 })));
 
 
-type GradeStateType = {
-    grades: grade[];
-    setGrades: (grades: grade[]) => void;
-};
-
-export const gradeStore = create<GradeStateType>((set => ({
-    grades: [],
-    setGrades: (grades: grade[]) => set({grades}),
-})));
-
 export const studentStore = create((set => ({
     students: <student[]>[],
     setStudents: (newStudents: student[]) => set((state: any) => ({

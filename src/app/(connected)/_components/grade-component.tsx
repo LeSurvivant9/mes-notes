@@ -1,5 +1,6 @@
 import React from 'react';
-import {gradeStore, studentStore} from "@/store/admin-store"
+import {studentStore} from "@/store/admin-store"
+import {gradeStore} from "@/store/grade-store"
 import {Dialog, DialogContent, DialogTrigger} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow} from "@/components/ui/table";

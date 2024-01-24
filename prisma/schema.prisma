@@ -32,7 +32,7 @@ model subject {
   teaching_unit_id    Int
   subject_name        String        @db.VarChar(255)
   subject_coefficient Int
-  teachingUnit        teaching_unit @relation(fields: [teaching_unit_id], references: [id])
+  teaching_unit       teaching_unit @relation(fields: [teaching_unit_id], references: [id])
   assessments         assessment[]
 
   @@index([teaching_unit_id], name: "subject_index_1")

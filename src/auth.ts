@@ -1,10 +1,9 @@
 import NextAuth from "next-auth"
 import {PrismaAdapter} from "@auth/prisma-adapter";
-import {UserRole} from "@prisma/client"
+import {student, UserRole} from "@prisma/client"
 import authConfig from "@/auth.config";
 import prisma from "@/lib/prisma"
-import {getUserById} from "@/data/users";
-
+import {getStudentByUserId, getUserById} from "@/data/users";
 
 export const {
     handlers: {GET, POST},
@@ -44,16 +43,24 @@ export const {
                 session.user.role = token.role as UserRole;
             }
 
+            if (token.student && session.user) {
+                session.student = token.student as student;
+            }
+
             return session;
         },
         async jwt({token}) {
             if (!token.sub) return token;
 
             const existingUser = await getUserById(token.sub);
-
             if (!existingUser) return token;
 
             token.role = existingUser.role;
+
+            const existingStudent = await getStudentByUserId(existingUser.id)
+            if (!existingStudent) return token;
+
+            token.student = existingStudent;
 
             return token;
         }
