@@ -79,7 +79,7 @@ const GradesPage = () => {
         }
     }, [studentId]);
 
-    function organizeGrades(grades: CompleteGradesType): { [semesterNumber: number]: SemesterType } {
+    function organizeGrades(grades: CompleteGradesType): SemesterType[] {
         const semesters: { [key: number]: SemesterType } = {};
 
         grades.forEach(grade => {
@@ -141,7 +141,7 @@ const GradesPage = () => {
             semester.average = semester.totalGrade / semester.totalCoefficient;
         });
 
-        return semesters;
+        return Object.values(semesters);
     }
 
 
