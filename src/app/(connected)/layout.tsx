@@ -1,21 +1,18 @@
 "use client";
+import { Navbar } from "@/app/(connected)/_components/navbar";
 import React from "react";
-import {Navbar} from "@/app/(connected)/_components/navbar";
-import {ThemeProvider} from "@/theme/ThemeProvider";
 
 interface ConnectedLayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
-const ConnectedLayout = ({children}: ConnectedLayoutProps) => {
-    return (
-        <div>
-            <ThemeProvider attribute={"class"} defaultTheme={"system"} enableSystem>
-                <Navbar/>
-                {children}
-            </ThemeProvider>
-        </div>
-    )
-}
+const ConnectedLayout = ({ children }: ConnectedLayoutProps) => {
+  return (
+    <div>
+      <Navbar />
+      {children}
+    </div>
+  );
+};
 
 export default ConnectedLayout;

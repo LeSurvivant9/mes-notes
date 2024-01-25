@@ -1,45 +1,43 @@
 "use server";
 
-import {currentRole} from "@/lib/auth";
-import {UserRole} from "@prisma/client";
+import { currentRole } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-
+import { UserRole } from "@prisma/client";
 
 export const admin = async () => {
-    const role = await currentRole();
+  const role = await currentRole();
 
-    if (role === UserRole.USER) {
-        return {error: "Action non permise"}
-    }
+  if (role === UserRole.USER) {
+    return { error: "Action non permise" };
+  }
 
-    return {success: "Forbidden action"};
+  return { success: "Forbidden action" };
 };
 
-
 export const getDepartments = async () => {
-    return prisma.department.findMany({orderBy: {id: "asc"}})
+  return prisma.department.findMany({ orderBy: { id: "asc" } });
 };
 
 export const getDepartmentsById = async (id: number) => {
-    return prisma.department.findUnique({where: {id}})
+  return prisma.department.findUnique({ where: { id } });
 };
 
 export const getTeachingUnits = async () => {
-    return prisma.teaching_unit.findMany()
+  return prisma.teaching_unit.findMany();
 };
 
 export const getSubjects = async () => {
-    return prisma.subject.findMany()
+  return prisma.subject.findMany();
 };
 
 export const getStudents = async () => {
-    return prisma.student.findMany()
+  return prisma.student.findMany();
 };
 
 export const getGrades = async () => {
-    return prisma.grade.findMany()
+  return prisma.grade.findMany();
 };
 
 export const getAssessments = async () => {
-    return prisma.assessment.findMany()
+  return prisma.assessment.findMany();
 };
