@@ -6,26 +6,26 @@ import { useEffect, useState } from "react";
 
 export type CompleteGradesType = {
   id: number;
-  student_id: number;
-  grade_value: number;
+  studentId: number;
+  gradeValue: number;
   assessment: {
     id: number;
-    file_name: string;
-    type_of_assessment: string;
-    date_of_assessment: Date;
+    fileName: string;
+    typeOfAssessment: string;
+    dateOfAssessment: Date;
     coefficient: number;
     period: number;
-    subject_id: number;
+    subjectId: number;
     subject: {
       id: number;
-      subject_name: string;
-      subject_coefficient: number;
-      teaching_unit_id: number;
-      teaching_unit: {
+      subjectName: string;
+      subjectCoefficient: number;
+      teachingUnitId: number;
+      teachingUnit: {
         id: number;
         semester: number;
-        teaching_unit_name: string;
-        department_id: number;
+        teachingUnitName: string;
+        departmentId: number;
       };
     };
   };
@@ -33,7 +33,7 @@ export type CompleteGradesType = {
 
 type AssessmentType = {
   id: number;
-  file_name: string;
+  fileName: string;
   gradeValue: number;
   coefficient: number;
   period: number;
@@ -83,7 +83,7 @@ const GradesPage = () => {
     grades.forEach((grade) => {
       const { assessment } = grade;
       const { subject } = assessment;
-      const teachingUnit = subject.teaching_unit;
+      const teachingUnit = subject.teachingUnit;
       const semesterNumber = teachingUnit.semester;
 
       if (!semesters[semesterNumber]) {
@@ -98,7 +98,7 @@ const GradesPage = () => {
       if (!semesters[semesterNumber].teachingUnits[teachingUnit.id]) {
         semesters[semesterNumber].teachingUnits[teachingUnit.id] = {
           average: 0,
-          name: teachingUnit.teaching_unit_name,
+          name: teachingUnit.teachingUnitName,
           totalGrade: 0,
           totalCoefficient: 0,
           subjects: {},
@@ -113,10 +113,10 @@ const GradesPage = () => {
         semesters[semesterNumber].teachingUnits[teachingUnit.id].subjects[
           subject.id
         ] = {
-          name: subject.subject_name,
+          name: subject.subjectName,
           totalGrade: 0,
           totalCoefficient: 0,
-          subjectCoefficient: subject.subject_coefficient,
+          subjectCoefficient: subject.subjectCoefficient,
           average: 0,
           assessments: [],
         };
@@ -128,14 +128,14 @@ const GradesPage = () => {
         ];
       subjectData.assessments.push({
         id: assessment.id,
-        file_name: assessment.file_name,
-        gradeValue: grade.grade_value,
+        fileName: assessment.fileName,
+        gradeValue: grade.gradeValue,
         coefficient: assessment.coefficient,
         period: assessment.period,
       });
 
       const gradeValueTimesCoefficient =
-        grade.grade_value * assessment.coefficient;
+        grade.gradeValue * assessment.coefficient;
       subjectData.totalGrade += gradeValueTimesCoefficient;
       subjectData.totalCoefficient += assessment.coefficient;
     });
@@ -184,7 +184,7 @@ const GradesPage = () => {
                       </h4>
                       {subjectData.assessments.map((assessment) => (
                         <p key={assessment.id}>
-                          {assessment.file_name} | Note: {assessment.gradeValue}{" "}
+                          {assessment.fileName} | Note: {assessment.gradeValue}{" "}
                           | Coefficient: {assessment.coefficient} | Période:{" "}
                           {assessment.period}
                         </p>

@@ -1,91 +1,90 @@
 datasource db {
-  provider          = "mysql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("DEVELOPMENT_DATABASE_URL")
-  relationMode      = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-model department {
-  id              Int             @id @default(autoincrement())
-  department_name String          @unique @db.VarChar(255)
-  teaching_units  teaching_unit[]
-  students        student[]
+model Department {
+  id             Int            @id @default(autoincrement())
+  departmentName String         @unique @db.VarChar(255)
+  teachingUnits  TeachingUnit[]
+  students       Student[]
 }
 
-model teaching_unit {
-  id                 Int        @id @default(autoincrement())
-  teaching_unit_name String     @db.VarChar(255)
-  semester           Int
-  department_id      Int
-  department         department @relation(fields: [department_id], references: [id])
-  subjects           subject[]
+model TeachingUnit {
+  id               Int        @id @default(autoincrement())
+  teachingUnitName String     @db.VarChar(255)
+  semester         Int
+  departmentId     Int
+  department       Department @relation(fields: [departmentId], references: [id])
+  subjects         Subject[]
 
-  @@index([department_id], name: "teaching_unit_index_0")
+  @@index([departmentId], name: "teaching_unit_index_0")
 }
 
-model subject {
-  id                  Int           @id @default(autoincrement())
-  teaching_unit_id    Int
-  subject_name        String        @db.VarChar(255)
-  subject_coefficient Int
-  teaching_unit       teaching_unit @relation(fields: [teaching_unit_id], references: [id])
-  assessments         assessment[]
+model Subject {
+  id                 Int          @id @default(autoincrement())
+  teachingUnitId     Int
+  subjectName        String       @db.VarChar(255)
+  subjectCoefficient Int
+  teachingUnit       TeachingUnit @relation(fields: [teachingUnitId], references: [id])
+  assessments        Assessment[]
 
-  @@index([teaching_unit_id], name: "subject_index_1")
+  @@index([teachingUnitId], name: "subject_index_1")
 }
 
-model professor {
-  id         Int       @id @default(autoincrement())
-  last_name  String    @db.VarChar(50)
-  first_name String    @db.VarChar(50)
-  account    account[]
+model Professor {
+  id        Int       @id @default(autoincrement())
+  lastName  String    @db.VarChar(50)
+  firstName String    @db.VarChar(50)
+  account   Account[]
 }
 
-model student {
-  id             Int        @id @default(autoincrement())
-  last_name      String     @db.VarChar(50)
-  first_name     String     @db.VarChar(50)
-  student_number String     @unique @db.VarChar(8)
-  department_id  Int
-  entry_year     Int?
-  level          Int
-  department     department @relation(fields: [department_id], references: [id])
-  account        account[]
-  grades         grade[]
-
-  @@index([student_number], name: "student_index_2")
-  @@index([department_id], name: "student_index_3")
-}
-
-model assessment {
-  id                 Int      @id @default(autoincrement())
-  subject_id         Int
-  type_of_assessment String   @db.VarChar(50)
-  date_of_assessment DateTime @default(now())
-  coefficient        Int
-  file_name          String   @db.VarChar(255)
-  period             Int
-  semester           Int
-  subject            subject  @relation(fields: [subject_id], references: [id])
-  grades             grade[]
-
-  @@index([subject_id], name: "assessment_index_4")
-}
-
-model grade {
+model Student {
   id            Int        @id @default(autoincrement())
-  student_id    Int
-  assessment_id Int
-  grade_value   Float
-  student       student    @relation(fields: [student_id], references: [id])
-  assessment    assessment @relation(fields: [assessment_id], references: [id])
+  lastName      String     @db.VarChar(50)
+  firstName     String     @db.VarChar(50)
+  studentNumber String     @unique @db.VarChar(8)
+  departmentId  Int
+  entryYear     Int?
+  level         Int
+  department    Department @relation(fields: [departmentId], references: [id])
+  account       Account[]
+  grades        Grade[]
 
-  @@index([student_id], name: "grade_index_5")
-  @@index([assessment_id], name: "grade_index_6")
+  @@index([studentNumber], name: "student_index_2")
+  @@index([departmentId], name: "student_index_3")
+}
+
+model Assessment {
+  id               Int      @id @default(autoincrement())
+  subjectId        Int
+  typeOfAssessment String   @db.VarChar(50)
+  dateOfAssessment DateTime @default(now())
+  coefficient      Int
+  fileName         String   @db.VarChar(255)
+  period           Int
+  semester         Int
+  subject          Subject  @relation(fields: [subjectId], references: [id])
+  grades           Grade[]
+
+  @@index([subjectId], name: "assessment_index_4")
+}
+
+model Grade {
+  id           Int        @id @default(autoincrement())
+  studentId    Int
+  assessmentId Int
+  gradeValue   Float
+  student      Student    @relation(fields: [studentId], references: [id])
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+
+  @@index([studentId], name: "grade_index_5")
+  @@index([assessmentId], name: "grade_index_6")
 }
 
 enum UserRole {
@@ -93,18 +92,18 @@ enum UserRole {
   USER
 }
 
-model user {
-  id              String    @id @default(cuid())
-  name            String?   @db.VarChar(255)
-  username        String?   @unique @db.VarChar(30)
-  image           String?   @db.VarChar(255)
-  hashed_password String?   @db.VarChar(255)
-  role            UserRole  @default(USER)
-  email           String    @unique @db.VarChar(255)
-  emailVerified   DateTime?
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-  accounts        account[]
+model User {
+  id             String    @id @default(cuid())
+  name           String?   @db.VarChar(255)
+  username       String?   @unique @db.VarChar(30)
+  image          String?   @db.VarChar(255)
+  hashedPassword String?   @db.VarChar(255)
+  role           UserRole  @default(USER)
+  email          String    @unique @db.VarChar(255)
+  emailVerified  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  account        Account[]
 }
 
 enum AccountType {
@@ -112,21 +111,23 @@ enum AccountType {
   PROFESSOR
 }
 
-model account {
-  id           String      @id @default(cuid())
-  user_id      String
-  student_id   Int?
-  professor_id Int?
-  type         AccountType
-  user         user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  student      student?    @relation(fields: [student_id], references: [id], onDelete: Cascade)
-  professor    professor?  @relation(fields: [professor_id], references: [id], onDelete: Cascade)
+model Account {
+  id          String      @id @default(cuid())
+  userId      String
+  studentId   Int?
+  professorId Int?
+  type        AccountType
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  student     Student?    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  professor   Professor?  @relation(fields: [professorId], references: [id], onDelete: Cascade)
 
-  @@unique([user_id, student_id])
-  @@unique([user_id, professor_id])
+  @@unique([userId, studentId])
+  @@unique([userId, professorId])
+  @@index([studentId], name: "account_studentId_idx")
+  @@index([professorId], name: "account_professorId_idx")
 }
 
-model verification_token {
+model VerificationToken {
   id      String   @id @default(cuid())
   email   String
   token   String   @unique
@@ -135,7 +136,7 @@ model verification_token {
   @@unique([email, token])
 }
 
-model password_reset_token {
+model PasswordResetToken {
   id      String   @id @default(cuid())
   email   String
   token   String   @unique

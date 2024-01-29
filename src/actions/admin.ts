@@ -23,7 +23,7 @@ export const getDepartmentsById = async (id: number) => {
 };
 
 export const getTeachingUnits = async () => {
-  return prisma.teaching_unit.findMany();
+  return prisma.teachingUnit.findMany();
 };
 
 export const getSubjects = async () => {
