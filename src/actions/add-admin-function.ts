@@ -70,6 +70,7 @@ export const addOrUpdateStudents = async (
   newLevel: number
 ) => {
   const studentPromises = studentsData.map((studentData) => {
+    const email = `${studentData.Nom.toLowerCase()}.${studentData.Prenom.toLowerCase()}@uphfr.fr`;
     return prisma.student.upsert({
       where: { studentNumber: Number(studentData.Code) },
       update: {
@@ -80,6 +81,7 @@ export const addOrUpdateStudents = async (
         studentNumber: Number(studentData.Code),
         lastName: toUpperCase(studentData.Nom),
         firstName: capitalize(studentData.Prenom),
+        email,
         departmentId: newDepartmentId,
         level: newLevel,
       },
