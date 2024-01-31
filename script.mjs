@@ -1,19 +1,24 @@
-import {PrismaClient} from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
+import { v4 as uuidv4 } from "uuid";
 
-const prisma = new PrismaClient()
-
+const prisma = new PrismaClient();
 
 async function main() {
-    console.log("Hello world!")
+  const department = await prisma.department.findFirst({
+    include: {
+      students: true,
+    },
+  });
+  //   console.log(department);
+  console.log(department.students);
 }
 
-
 main()
-    .then(async () => {
-        await prisma.$disconnect()
-    })
-    .catch(async (e) => {
-        console.error(e)
-        await prisma.$disconnect()
-        process.exit(1)
-    })
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

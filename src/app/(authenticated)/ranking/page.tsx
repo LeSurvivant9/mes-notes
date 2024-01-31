@@ -1,13 +1,11 @@
-"use client"
-import React from 'react';
-import {UserInfo} from "@/components/user-info";
-import {useCurrentUser} from "@/hooks/use-current-user";
+"use client";
 
 const RankingPage = () => {
-    const user = useCurrentUser()
-    return (
-        <UserInfo label={"Client component"} user={user}/>
-    );
+  return (
+    <>
+      <h1>Classement</h1>
+    </>
+  );
 };
 
 export default RankingPage;

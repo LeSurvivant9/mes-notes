@@ -1,4 +1,3 @@
-import GradeForm from "@/components/admin/grade-form";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -15,6 +14,7 @@ import { assessmentStore } from "@/store/assessment-store";
 import { gradeStore } from "@/store/grade-store";
 import { subjectStore } from "@/store/subject-store";
 import { Assessment, Grade, Student, Subject } from "@prisma/client";
+import GradeForm from "./grade-form";
 
 const GradeComponent = () => {
   const grades = gradeStore<Grade[]>((state: any) => state.grades);
