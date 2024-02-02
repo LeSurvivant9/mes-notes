@@ -15,7 +15,7 @@ import DepartmentForm from "./department-form";
 
 const DepartmentComponent = () => {
   const departments = departmentStore<Department[]>(
-    (state: any) => state.departments
+    (state: any) => state.departments,
   );
 
   const handleDelete = async (departmentId: number | undefined) => {
@@ -50,9 +50,7 @@ const DepartmentComponent = () => {
           {departments?.map((department) => (
             <TableRow key={department.id}>
               <TableCell>{department.id}</TableCell>
-              <TableCell className="text-right">
-                {department.departmentName}
-              </TableCell>
+              <TableCell className="text-right">{department.name}</TableCell>
               <TableCell className={"p-0 m-0 gap-x-0"}>
                 <Button onClick={() => handleEdit(department.id)}>
                   Modifier

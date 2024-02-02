@@ -85,22 +85,17 @@ export const SubjectSchema = z.object({
 });
 
 export const StudentSchema = z.object({
-  id: z.number().optional(),
+  studentNumber: z.number().int(),
   lastName: z.string().min(1, {
     message: "Nom de famille requis",
   }),
   firstName: z.string().min(1, {
     message: "Prénom requis",
   }),
-  studentNumber: z
-    .string()
-    .min(1, {
-      message: "Numéro étudiant requis",
-    })
-    .max(8),
   email: z.string().email({
     message: "Email requis",
   }),
+  entryYear: z.number().optional(),
   level: z.number().int({
     message: "Niveau d'étude requis",
   }),
@@ -108,11 +103,10 @@ export const StudentSchema = z.object({
 });
 
 export const GradeSchema = z.object({
-  id: z.number().optional(),
+  studentNumber: z.number().int(),
   value: z.number({
     required_error: "Note requise",
   }),
-  studentId: z.number().int(),
   assessmentId: z.number().int(),
 });
 

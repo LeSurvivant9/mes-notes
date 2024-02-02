@@ -54,19 +54,19 @@ model Assessment {
   subjectId   Int
   grades      Grade[]
 
-  @@index([subjectId], name: "assessment_index_4")
+  @@index([subjectId], name: "assessment_index_0")
 }
 
 model Grade {
-  id           Int        @id @default(autoincrement())
-  value        Float
-  student      Student    @relation(fields: [studentId], references: [id])
-  studentId    Int
-  assessment   Assessment @relation(fields: [assessmentId], references: [id])
-  assessmentId Int
+  id            Int        @id @default(autoincrement())
+  value         Float
+  student       Student    @relation(fields: [studentNumber], references: [studentNumber])
+  studentNumber Int
+  assessment    Assessment @relation(fields: [assessmentId], references: [id])
+  assessmentId  Int
 
-  @@index([studentId], name: "grade_index_5")
-  @@index([assessmentId], name: "grade_index_6")
+  @@index([studentNumber], name: "grade_index_0")
+  @@index([assessmentId], name: "grade_index_1")
 }
 
 enum UserRole {
@@ -76,7 +76,6 @@ enum UserRole {
 
 model User {
   id             String    @id @default(cuid())
-  name           String?   @db.VarChar(255)
   username       String?   @unique @db.VarChar(30)
   image          String?   @db.VarChar(255)
   hashedPassword String?   @db.VarChar(255)
@@ -88,10 +87,9 @@ model User {
 }
 
 model Student {
-  id            Int        @id @default(autoincrement())
+  studentNumber Int        @id
   lastName      String     @db.VarChar(50)
   firstName     String     @db.VarChar(50)
-  studentNumber Int        @unique
   email         String     @unique
   entryYear     Int?
   level         Int
@@ -117,18 +115,18 @@ enum AccountType {
 }
 
 model Account {
-  id          String      @id @default(cuid())
-  userId      String
-  studentId   Int?
-  professorId Int?
-  type        AccountType
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  student     Student?    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  professor   Professor?  @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  id            String      @id @default(cuid())
+  userId        String
+  studentNumber Int?
+  professorId   Int?
+  type          AccountType
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  student       Student?    @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
+  professor     Professor?  @relation(fields: [professorId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, studentId])
+  @@unique([userId, studentNumber])
   @@unique([userId, professorId])
-  @@index([studentId], name: "account_studentId_idx")
+  @@index([studentNumber], name: "account_studentId_idx")
   @@index([professorId], name: "account_professorId_idx")
 }
 

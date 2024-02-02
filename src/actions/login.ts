@@ -7,10 +7,11 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { LoginSchema } from "@/schemas";
 import { AuthError } from "next-auth";
 import { z } from "zod";
+import { getStudentByKey } from "@/actions/admin/student.actions";
 
 export const login = async (
   values: z.infer<typeof LoginSchema>,
-  callbackUrl?: string | null
+  callbackUrl?: string | null,
 ) => {
   const validatedFields = LoginSchema.safeParse(values);
   if (!validatedFields.success) {
@@ -19,19 +20,19 @@ export const login = async (
 
   const { email, password } = validatedFields.data;
   const lowerCaseEmail = email.toLowerCase();
-
+  const existingStudent = await getStudentByKey("email", lowerCaseEmail);
   const existingUser = await getUserByEmail(lowerCaseEmail);
-  if (!existingUser?.email || !existingUser?.hashed_password) {
+  if (!existingStudent?.email || !existingUser?.hashedPassword) {
     return { error: "Adresse mail non reconnue" };
   }
 
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(
-      existingUser.email
+      existingUser.email,
     );
     await sendVerificationEmail(
       verificationToken.email,
-      verificationToken.token
+      verificationToken.token,
     );
     return { success: "Confirmation email sent!" };
   }
