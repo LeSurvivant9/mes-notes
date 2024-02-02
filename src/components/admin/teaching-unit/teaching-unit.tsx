@@ -10,16 +10,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { departmentStore } from "@/store/admin-store";
-import { teachingUnitStore } from "@/store/teaching-unit-store";
+import { teachingUnitStore } from "@/store/use-teaching-unit";
 import { Department, TeachingUnit } from "@prisma/client";
 import TeachingUnitForm from "./teaching-unit-form";
 
 const TeachingUnitComponent = () => {
   const teachingUnits = teachingUnitStore<TeachingUnit[]>(
-    (state: any) => state.teachingUnits
+    (state: any) => state.teachingUnits,
   );
   const departments = departmentStore<Department[]>(
-    (state: any) => state.departments
+    (state: any) => state.departments,
   );
 
   const handleDelete = async (teachingUnitId: number | undefined) => {
@@ -65,7 +65,7 @@ const TeachingUnitComponent = () => {
               <TableCell className="text-right">
                 {
                   departments.filter(
-                    (department) => department.id === teachingUnit.departmentId
+                    (department) => department.id === teachingUnit.departmentId,
                   )[0].departmentName
                 }
               </TableCell>

@@ -8,6 +8,8 @@ import { SessionProvider } from "next-auth/react";
 import { Poppins } from "next/font/google";
 import React from "react";
 import "./globals.css";
+import { QueryClient } from "@tanstack/react-query";
+import Providers from "@/app/provider";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["600"] });
 
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
     "Application créé par Alexandre, gestionnaire de notes pour les étudiants de l'INSA Hauts-de-France.",
 };
 
+const queryClient = new QueryClient();
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

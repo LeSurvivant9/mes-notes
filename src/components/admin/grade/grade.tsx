@@ -10,29 +10,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { studentStore } from "@/store/admin-store";
-import { assessmentStore } from "@/store/assessment-store";
-import { gradeStore } from "@/store/grade-store";
-import { subjectStore } from "@/store/subject-store";
+import { useAssessment } from "@/store/use-assessment";
+import { gradeStore } from "@/store/use-grade";
+import { subjectStore } from "@/store/use-subject";
 import { Assessment, Grade, Student, Subject } from "@prisma/client";
 import GradeForm from "./grade-form";
 
-const GradeComponent = () => {
+const GradePage = () => {
   const grades = gradeStore<Grade[]>((state: any) => state.grades);
-  const assessments = assessmentStore<Assessment[]>(
-    (state: any) => state.assessments
+  const assessments = useAssessment<Assessment[]>(
+    (state: any) => state.assessments,
   );
   const students = studentStore<Student[]>((state: any) => state.students);
   const subjects = subjectStore<Subject[]>((state: any) => state.subjects);
 
   const firstGrade = grades[0];
   const fileName = assessments.filter(
-    (assessment) => assessment.id === firstGrade.assessmentId
+    (assessment) => assessment.id === firstGrade.assessmentId,
   )[0]?.fileName;
   const coefficient = assessments.filter(
-    (assessment) => assessment.id === firstGrade.assessmentId
+    (assessment) => assessment.id === firstGrade.assessmentId,
   )[0]?.coefficient;
   const subjectId = assessments.filter(
-    (assessment) => assessment.id === firstGrade.assessmentId
+    (assessment) => assessment.id === firstGrade.assessmentId,
   )[0]?.subjectId;
   const subjectName = subjects.filter((subject) => subject.id === subjectId)[0]
     ?.subjectName;
@@ -74,7 +74,7 @@ const GradeComponent = () => {
               <TableCell>
                 {
                   students.filter(
-                    (student) => student.id === grade.studentId
+                    (student) => student.id === grade.studentId,
                   )[0]?.studentNumber
                 }
               </TableCell>
@@ -104,4 +104,4 @@ const GradeComponent = () => {
   );
 };
 
-export default GradeComponent;
+export default GradePage;

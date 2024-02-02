@@ -10,7 +10,7 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {FormError} from "@/components/form-error";
 import {FormSuccess} from "@/components/form-success";
-import {reset} from "@/actions/reset";
+import {reset} from "@/actions/auth/reset";
 
 export const ResetForm = () => {
     const [error, setError] = useState<string | undefined>("")

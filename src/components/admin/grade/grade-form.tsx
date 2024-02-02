@@ -21,11 +21,11 @@ import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import SubmitButton from "@/components/submit-button";
 import React, { useState, useTransition } from "react";
-import { subjectStore } from "@/store/subject-store";
+import { subjectStore } from "@/store/use-subject";
 import { subject, teaching_unit } from "@prisma/client";
 import GradeDialogPreview from "@/components/admin/grade/grade-preview";
 import { addGrades } from "@/actions/add-admin-function";
-import { teachingUnitStore } from "@/store/teaching-unit-store";
+import { teachingUnitStore } from "@/store/use-teaching-unit";
 import { GradeInformationType } from "@/types";
 
 export type GradeDataType = {
@@ -36,7 +36,7 @@ export type GradeDataType = {
 const GradeForm = () => {
   const subjects = subjectStore<subject[]>((state: any) => state.subjects);
   const teachingUnits = teachingUnitStore<teaching_unit[]>(
-    (state: any) => state.teachingUnits
+    (state: any) => state.teachingUnits,
   );
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -137,7 +137,7 @@ const GradeForm = () => {
                       type="file"
                       onChange={(e) =>
                         field.onChange(
-                          e.target.files ? e.target.files[0] : null
+                          e.target.files ? e.target.files[0] : null,
                         )
                       }
                     />

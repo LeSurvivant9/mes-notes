@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/select";
 import { SubjectSchema } from "@/schemas";
 import { departmentStore } from "@/store/admin-store";
-import { subjectStore } from "@/store/subject-store";
-import { teachingUnitStore } from "@/store/teaching-unit-store";
+import { subjectStore } from "@/store/use-subject";
+import { teachingUnitStore } from "@/store/use-teaching-unit";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Department, Subject, TeachingUnit } from "@prisma/client";
 import { useState, useTransition } from "react";
@@ -39,10 +39,10 @@ const SubjectForm = () => {
     useState<TeachingUnit[]>();
   const [isPending, startTransition] = useTransition();
   const departments = departmentStore<Department[]>(
-    (state: any) => state.departments
+    (state: any) => state.departments,
   );
   const teachingUnits = teachingUnitStore<TeachingUnit[]>(
-    (state: any) => state.teachingUnits
+    (state: any) => state.teachingUnits,
   );
   const fetchSubjects = subjectStore((state: any) => state.fetchSubjects);
 
@@ -55,14 +55,14 @@ const SubjectForm = () => {
 
   const sortedTeachingUnits = (
     subjectSemester: string,
-    departmentId: string
+    departmentId: string,
   ) => {
     setSemester(subjectSemester);
     setDepartmentId(departmentId);
     const filteredTeachingUnits = teachingUnits.filter(
       (teachingUnit) =>
         teachingUnit.semester === Number(subjectSemester) &&
-        teachingUnit.departmentId === Number(departmentId)
+        teachingUnit.departmentId === Number(departmentId),
     );
     setFilteredTeachingUnits(filteredTeachingUnits);
   };

@@ -9,14 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { subjectStore } from "@/store/subject-store";
+import { subjectStore } from "@/store/use-subject";
 import { Subject, TeachingUnit } from "@prisma/client";
 import SubjectForm from "./subject-form";
 
 const SubjectComponent = () => {
   const subjects = subjectStore<Subject[]>((state: any) => state.subjects);
   const teachingUnits = subjectStore<TeachingUnit[]>(
-    (state: any) => state.teachingUnits
+    (state: any) => state.teachingUnits,
   );
 
   const handleDelete = async (departmentId: number | undefined) => {
@@ -58,7 +58,8 @@ const SubjectComponent = () => {
               <TableCell className="">
                 {
                   teachingUnits.filter(
-                    (teachingUnit) => teachingUnit.id === subject.teachingUnitId
+                    (teachingUnit) =>
+                      teachingUnit.id === subject.teachingUnitId,
                   )[0].teachingUnitName
                 }
               </TableCell>

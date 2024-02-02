@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { TeachingUnitSchema } from "@/schemas";
 import { departmentStore } from "@/store/admin-store";
-import { teachingUnitStore } from "@/store/teaching-unit-store";
+import { teachingUnitStore } from "@/store/use-teaching-unit";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Department } from "@prisma/client";
 import { useState, useTransition } from "react";
@@ -33,10 +33,10 @@ const TeachingUnitForm = () => {
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
   const departments = departmentStore<Department[]>(
-    (state: any) => state.departments
+    (state: any) => state.departments,
   );
   const fetchTeachingUnits = teachingUnitStore(
-    (state: any) => state.fetchTeachingUnits
+    (state: any) => state.fetchTeachingUnits,
   );
 
   const form = useForm<z.infer<typeof TeachingUnitSchema>>({
