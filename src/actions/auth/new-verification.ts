@@ -1,8 +1,8 @@
 "use server";
 
-import { getUserByEmail } from "@/data/users";
 import { getVerificationTokenByToken } from "@/data/verification-token";
 import prisma from "@/lib/prisma";
+import { getUserByKey } from "@/actions/auth/user.actions";
 
 export const newVerification = async (token: string) => {
   const existingToken = await getVerificationTokenByToken(token);
@@ -17,7 +17,7 @@ export const newVerification = async (token: string) => {
     return { error: "Token has expired!" };
   }
 
-  const existingUser = await getUserByEmail(existingToken.email);
+  const existingUser = await getUserByKey("email", existingToken.email);
 
   if (!existingUser) {
     return { error: "Email does not exist" };

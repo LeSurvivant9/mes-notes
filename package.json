@@ -7,9 +7,8 @@
   "scripts": {
     "dev": "next dev --experimental-https",
     "build": "next build",
-    "start": "pnpm run build && next start",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
-    "postinstall": "prisma generate"
+    "start": "npm run build && next start",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^1.2.0",
@@ -28,6 +27,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tanstack/react-query": "^5.18.1",
+    "@tanstack/react-query-devtools": "^5.18.1",
     "@tanstack/react-table": "^8.11.8",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^6.4.14",
@@ -47,7 +47,6 @@
     "nodemailer": "^6.9.9",
     "papaparse": "^5.4.1",
     "pdf2json": "^3.0.5",
-    "pdfjs-dist": "^4.0.379",
     "pnpm": "^8.15.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -60,13 +59,15 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1",
     "zod": "^3.22.4",
+    "zod-prisma": "^0.5.4",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
     "@types/multer": "^1.4.11",
     "@types/node": "^20.11.16",
     "@types/papaparse": "^5.3.14",
-    "@types/react": "^18.2.51",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/react": "^18.2.52",
     "@types/react-dom": "^18.2.18",
     "@types/react-modal": "^3.16.3",
     "@types/uuid": "^9.0.8",

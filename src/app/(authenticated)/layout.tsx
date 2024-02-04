@@ -7,7 +7,7 @@ interface ConnectedLayoutProps {
   children: React.ReactNode;
 }
 
-const ConnectedLayout = ({ children }: ConnectedLayoutProps) => {
+const AuthenticatedLayout = ({ children }: ConnectedLayoutProps) => {
   return (
     <ThemeProvider attribute={"class"} defaultTheme={"system"} enableSystem>
       <Navbar />
@@ -16,4 +16,4 @@ const ConnectedLayout = ({ children }: ConnectedLayoutProps) => {
   );
 };
 
-export default ConnectedLayout;
+export default AuthenticatedLayout;

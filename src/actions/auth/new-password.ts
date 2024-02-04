@@ -1,10 +1,10 @@
 "use server";
 import { getPasswordResetTokenByToken } from "@/data/password-reset-token";
-import { getUserByEmail } from "@/data/users";
 import prisma from "@/lib/prisma";
-import { NewPasswordSchema } from "@/schemas";
+import { NewPasswordSchema } from "@/schemas/auth";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { getUserByKey } from "@/actions/auth/user.actions";
 
 export const newPassword = async (
   values: z.infer<typeof NewPasswordSchema>,
@@ -34,7 +34,7 @@ export const newPassword = async (
     return { error: "Token has expired!" };
   }
 
-  const existingUser = await getUserByEmail(existingToken.email);
+  const existingUser = await getUserByKey("email", existingToken.email);
 
   if (!existingUser) {
     return { error: "Email does not exist!" };

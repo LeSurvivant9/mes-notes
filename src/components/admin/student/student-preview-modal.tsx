@@ -1,4 +1,3 @@
-import { addOrUpdateStudents } from "@/actions/add-admin-function";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,37 +14,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React, { FormEvent } from "react";
+import React from "react";
+import { StudentSchema } from "@/schemas";
+import { z } from "zod";
 
 type StudentPreviewModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onError: (message?: string) => void;
-  onSuccess: (message?: string) => void;
-  setIsPending: (arg: boolean) => void;
-  students: any[];
-  departmentId: number;
-  level: number;
+  onSuccess: () => void;
+  students: z.infer<typeof StudentSchema>[];
 };
 
 const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({
   isOpen,
   onClose,
-  students,
-  departmentId,
-  level,
-  onError,
   onSuccess,
-  setIsPending,
+  students,
 }) => {
-  const upload = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsPending(true);
-    addOrUpdateStudents(students, departmentId, level).then((data) => {
-      onError(data?.error);
-      onSuccess(data?.success);
-      setIsPending(false);
-    });
+  const upload = () => {
+    onSuccess();
+    onClose();
   };
 
   return (
@@ -62,22 +50,29 @@ const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({
               <TableHead className={"text-center"}>Prénom</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className={""}>
+          <TableBody>
             {students.map((student) => (
-              <TableRow key={student.Code}>
-                <TableCell className="text-center">{student.Code}</TableCell>
-                <TableCell className="text-center">{student.Nom}</TableCell>
-                <TableCell className="text-center">{student.Prenom}</TableCell>
+              <TableRow key={student.studentNumber}>
+                <TableCell className="text-center">
+                  {student.studentNumber}
+                </TableCell>
+                <TableCell className="text-center">
+                  {student.lastName}
+                </TableCell>
+                <TableCell className="text-center">
+                  {student.firstName}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
         <DialogFooter className="sm:justify-start">
-          <form onSubmit={upload} className={"w-full"}>
-            <Button type={"submit"} onClick={onClose} className={"w-full"}>
-              Upload les étudiants
-            </Button>
-          </form>
+          <Button onClick={upload} className={"w-full"}>
+            Upload les étudiants
+          </Button>
+          <Button onClick={onClose} className={"w-full"}>
+            Annuler
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

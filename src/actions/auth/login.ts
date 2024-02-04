@@ -1,28 +1,22 @@
 "use server";
 import { signIn } from "@/auth";
-import { getUserByEmail } from "@/data/users";
 import { sendVerificationEmail } from "@/lib/mail";
 import { generateVerificationToken } from "@/lib/tokens";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
-import { LoginSchema } from "@/schemas";
+import { LoginSchema } from "@/schemas/auth";
 import { AuthError } from "next-auth";
 import { z } from "zod";
-import { getStudentByKey } from "@/actions/admin/student.actions";
+import { getUserByKey } from "@/actions/auth/user.actions";
 
 export const login = async (
   values: z.infer<typeof LoginSchema>,
   callbackUrl?: string | null,
 ) => {
-  const validatedFields = LoginSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid field!" };
-  }
+  const { email, password } = values;
 
-  const { email, password } = validatedFields.data;
   const lowerCaseEmail = email.toLowerCase();
-  const existingStudent = await getStudentByKey("email", lowerCaseEmail);
-  const existingUser = await getUserByEmail(lowerCaseEmail);
-  if (!existingStudent?.email || !existingUser?.hashedPassword) {
+  const existingUser = await getUserByKey("email", lowerCaseEmail);
+  if (!existingUser?.email || !existingUser?.hashedPassword) {
     return { error: "Adresse mail non reconnue" };
   }
 
@@ -43,6 +37,7 @@ export const login = async (
       password,
       redirectTo: callbackUrl ?? DEFAULT_LOGIN_REDIRECT,
     });
+    return { success: "Connexion réussie" };
   } catch (error) {
     if (error instanceof AuthError) {
       if (error.type === "CredentialsSignin") {

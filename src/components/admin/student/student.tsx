@@ -9,25 +9,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { departmentStore, studentStore } from "@/store/admin-store";
-import { Department, Student } from "@prisma/client";
-import StudentForm from "./student-form";
+import { useDepartmentStore } from "@/store/use-department";
+import { useStudentStore } from "@/store/use-student";
+import { z } from "zod";
+import { StudentSchema } from "@/schemas";
+import { fetchStudents } from "@/data/get-all-datas";
+import { deleteStudent } from "@/actions/admin/student.actions";
+import StudentForm from "@/components/admin/student/student-form";
 
 const StudentComponent = () => {
-  const departments = departmentStore<Department[]>(
-    (state: any) => state.departments
-  );
-  const students = studentStore<Student[]>((state: any) => state.students);
+  const { departments } = useDepartmentStore((state) => state);
+  const { students, setStudents } = useStudentStore((state) => state);
 
-  const handleDelete = async (departmentId: number | undefined) => {
-    // Logique de suppression ici...
-    console.log("Supprimer le département avec l'id:", departmentId);
-  };
-
-  // Fonction pour gérer la modification
-  const handleEdit = (departmentId: number | undefined) => {
-    // Logique de modification ici...
-    console.log("Modifier le département avec l'id :", departmentId);
+  const getNameAttachedDepartment = (
+    student: z.infer<typeof StudentSchema>,
+  ) => {
+    return departments.find(
+      (department) => department.id === student.departmentId,
+    )?.name;
   };
 
   return (
@@ -37,7 +36,7 @@ const StudentComponent = () => {
           <Button className={"w-full"}>Ajouter</Button>
         </DialogTrigger>
         <DialogContent>
-          <StudentForm />
+          <StudentForm mod={"create"} />
         </DialogContent>
       </Dialog>
       <Table>
@@ -48,27 +47,41 @@ const StudentComponent = () => {
             <TableHead className="">Prénom</TableHead>
             <TableHead className="">Niveau</TableHead>
             <TableHead className="">Département</TableHead>
+            <TableHead colSpan={2} className={"text-center w-full"}>
+              Options
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {students?.map((student) => (
-            <TableRow key={student.id}>
+            <TableRow key={student.studentNumber}>
               <TableCell>{student.studentNumber}</TableCell>
               <TableCell className="">{student.lastName}</TableCell>
               <TableCell className="">{student.firstName}</TableCell>
               <TableCell className="">{student.level}</TableCell>
               <TableCell className="">
-                {
-                  departments.filter(
-                    (department) => department.id === student.departmentId
-                  )[0]?.departmentName
-                }
+                {getNameAttachedDepartment(student)}
               </TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleEdit(student.id)}>Modifier</Button>
+              <TableCell className={"text-right"}>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Modifier</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <StudentForm
+                      mod={"update"}
+                      studentNumber={student.studentNumber}
+                    />
+                  </DialogContent>
+                </Dialog>
               </TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleDelete(student.id)}>
+              <TableCell className={"text-right"}>
+                <Button
+                  onClick={async () => {
+                    await deleteStudent(student.studentNumber as string);
+                    await fetchStudents();
+                  }}
+                >
                   Supprimer
                 </Button>
               </TableCell>

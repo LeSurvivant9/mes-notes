@@ -3,10 +3,39 @@ import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { StudentSchema } from "@/schemas";
 
-export const createStudent = async (data: z.infer<typeof StudentSchema>) => {
-  return prisma.student.create({
-    data,
+export const getAllStudents = async () => {
+  return prisma.student.findMany({
+    orderBy: {
+      studentNumber: "asc",
+    },
   });
+};
+
+export const getStudentByKey = async (key: string, value: string) => {
+  return prisma.student.findFirst({
+    where: {
+      [key]: value,
+    },
+  });
+};
+
+export const createStudent = async (data: z.infer<typeof StudentSchema>) => {
+  try {
+    const student = await prisma.student.create({
+      data,
+    });
+    return {
+      success: `${student.studentNumber} a été ajouté avec succès`,
+      error: "",
+      student,
+    };
+  } catch (error) {
+    return {
+      success: "",
+      error: "Problème avec la création de l'élève : " + error,
+      student: null,
+    };
+  }
 };
 
 export const createManyStudents = async (
@@ -41,34 +70,46 @@ export const createManyStudents = async (
   return response;
 };
 
-export const getAllStudents = async () => {
-  return prisma.student.findMany();
-};
-
-export const getStudentByKey = async (key: string, value: string) => {
-  return prisma.student.findFirst({
-    where: {
-      [key]: value,
-    },
-  });
-};
-
 export const updateStudent = async (
-  studentNumber: number,
+  studentNumber: string,
   data: z.infer<typeof StudentSchema>,
 ) => {
-  return prisma.student.update({
-    where: {
-      studentNumber,
-    },
-    data: data,
-  });
+  try {
+    const student = await prisma.student.update({
+      where: { studentNumber },
+      data,
+    });
+
+    return {
+      success: `${student.studentNumber} a été modifié avec succès`,
+      error: "",
+      student,
+    };
+  } catch (error) {
+    return {
+      success: "",
+      error: "Problème avec la modification de l'élève : " + error,
+      student: null,
+    };
+  }
 };
 
-export const deleteStudent = async (studentNumber: number) => {
-  return prisma.student.delete({
-    where: {
-      studentNumber,
-    },
-  });
+export const deleteStudent = async (studentNumber: string) => {
+  try {
+    const student = await prisma.student.delete({
+      where: { studentNumber },
+    });
+
+    return {
+      success: `${student.studentNumber} a été supprimé avec succès`,
+      error: "",
+      student,
+    };
+  } catch (error) {
+    return {
+      success: "",
+      error: "Problème avec la suppression de l'élève : " + error,
+      student: null,
+    };
+  }
 };

@@ -9,25 +9,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { subjectStore } from "@/store/use-subject";
-import { Subject, TeachingUnit } from "@prisma/client";
 import SubjectForm from "./subject-form";
+import { useSubjectStore } from "@/store/use-subject";
+import { useTeachingUnitStore } from "@/store/use-teaching-unit";
+import { z } from "zod";
+import { SubjectSchema } from "@/schemas";
+import { deleteSubject } from "@/actions/admin/subject.actions";
+import { fetchSubjects } from "@/data/get-all-datas";
 
 const SubjectComponent = () => {
-  const subjects = subjectStore<Subject[]>((state: any) => state.subjects);
-  const teachingUnits = subjectStore<TeachingUnit[]>(
-    (state: any) => state.teachingUnits,
-  );
+  const subjects = useSubjectStore((state) => state.subjects);
+  const teachingUnits = useTeachingUnitStore((state) => state.teachingUnits);
 
-  const handleDelete = async (departmentId: number | undefined) => {
-    // Logique de suppression ici...
-    console.log("Supprimer le département avec l'id:", departmentId);
-  };
-
-  // Fonction pour gérer la modification
-  const handleEdit = (departmentId: number | undefined) => {
-    // Logique de modification ici...
-    console.log("Modifier le département avec l'id :", departmentId);
+  const getNameAttachedTeachingUnit = (
+    subject: z.infer<typeof SubjectSchema>,
+  ) => {
+    return teachingUnits.find(
+      (teachingUnit) => teachingUnit.id === subject.teachingUnitId,
+    )?.name;
   };
 
   return (
@@ -37,37 +36,51 @@ const SubjectComponent = () => {
           <Button className={"w-full"}>Ajouter</Button>
         </DialogTrigger>
         <DialogContent>
-          <SubjectForm />
+          <SubjectForm mod={"create"} />
         </DialogContent>
       </Dialog>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="">Id</TableHead>
-            <TableHead className="">Nom</TableHead>
+            <TableHead className={"text-center w-full"}>Nom</TableHead>
             <TableHead className="">Coefficient</TableHead>
+            <TableHead className="">CC Coefficient</TableHead>
+            <TableHead className="">TP Coefficient</TableHead>
+            <TableHead className="">EXAM Coefficient</TableHead>
             <TableHead className="">UE rattachée</TableHead>
+            <TableHead colSpan={2} className={"text-center w-full"}>
+              Options
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {subjects?.map((subject) => (
             <TableRow key={subject.id}>
-              <TableCell>{subject.id}</TableCell>
-              <TableCell className="">{subject.subjectName}</TableCell>
-              <TableCell className="">{subject.subjectCoefficient}</TableCell>
+              <TableCell className="">{subject.name}</TableCell>
+              <TableCell className="">{subject.coefficient}</TableCell>
+              <TableCell className="">{subject.ccCoefficient}</TableCell>
+              <TableCell className="">{subject.tpCoefficient}</TableCell>
+              <TableCell className="">{subject.examCoefficient}</TableCell>
               <TableCell className="">
-                {
-                  teachingUnits.filter(
-                    (teachingUnit) =>
-                      teachingUnit.id === subject.teachingUnitId,
-                  )[0].teachingUnitName
-                }
+                {getNameAttachedTeachingUnit(subject)}
               </TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleEdit(subject.id)}>Modifier</Button>
+              <TableCell className={"text-right"}>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Modifier</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <SubjectForm mod={"update"} subjectId={subject.id} />
+                  </DialogContent>
+                </Dialog>
               </TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleDelete(subject.id)}>
+              <TableCell className={"text-right"}>
+                <Button
+                  onClick={async () => {
+                    await deleteSubject(subject.id as string);
+                    await fetchSubjects();
+                  }}
+                >
                   Supprimer
                 </Button>
               </TableCell>

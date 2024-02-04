@@ -1,71 +1,79 @@
-import NextAuth from "next-auth"
-import {PrismaAdapter} from "@auth/prisma-adapter";
-import {student, UserRole} from "@prisma/client"
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { UserRole } from "@prisma/client";
 import authConfig from "@/auth.config";
-import prisma from "@/lib/prisma"
-import {getStudentByUserId, getUserById} from "@/data/users";
+import prisma from "@/lib/prisma";
+import { z } from "zod";
+import { StudentSchema } from "@/schemas";
+import { getUserByKey } from "@/actions/auth/user.actions";
+import { getStudentByKey } from "@/actions/admin/student.actions";
+import { getAccountByKey } from "@/actions/auth/account.actions";
 
 export const {
-    handlers: {GET, POST},
-    auth,
-    signIn,
-    signOut,
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
 } = NextAuth({
-    pages: {
-        signIn: "/auth/login",
-        error: "/auth/error",
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
+  events: {
+    async linkAccount({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
+      });
     },
-    events: {
-        async linkAccount({user}) {
-            await prisma.user.update({
-                where: {id: user.id},
-                data: {emailVerified: new Date()}
-            })
-        },
+  },
+  callbacks: {
+    async signIn({ user, account }) {
+      // Allow OAuth without email verification
+      if (account?.provider !== "credentials") return true;
+
+      const existingUser = await getUserByKey("id", user.id);
+
+      // Prevent sign in without email verification
+      return !!(existingUser && existingUser.emailVerified);
     },
-    callbacks: {
-        async signIn({user, account}) {
-            // Allow OAuth without email verification
-            if (account?.provider !== "credentials") return true;
+    async session({ token, session }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+      if (token.role && session.user) {
+        session.user.role = token.role as UserRole;
+      }
 
-            const existingUser = await getUserById(user.id);
+      if (token.student && session.user) {
+        session.student = token.student as z.infer<typeof StudentSchema>;
+      }
 
-            // Prevent sign in without email verification
-            if (!existingUser?.emailVerified) return false;
-
-            return true;
-        },
-        async session({token, session}) {
-            if (token.sub && session.user) {
-                session.user.id = token.sub;
-            }
-            if (token.role && session.user) {
-                session.user.role = token.role as UserRole;
-            }
-
-            if (token.student && session.user) {
-                session.student = token.student as student;
-            }
-
-            return session;
-        },
-        async jwt({token}) {
-            if (!token.sub) return token;
-
-            const existingUser = await getUserById(token.sub);
-            if (!existingUser) return token;
-
-            token.role = existingUser.role;
-
-            const existingStudent = await getStudentByUserId(existingUser.id)
-            if (!existingStudent) return token;
-
-            token.student = existingStudent;
-
-            return token;
-        }
+      return session;
     },
-    adapter: PrismaAdapter(prisma),
-    session: {strategy: "jwt"},
-    ...authConfig
+    async jwt({ token }) {
+      if (!token.sub) return token;
+
+      const existingUser = await getUserByKey("id", token.sub);
+      if (!existingUser) return token;
+
+      token.role = existingUser.role;
+
+      const existingAccount = await getAccountByKey("userId", existingUser.id);
+      if (!existingAccount || !existingAccount.studentNumber) return token;
+
+      const existingStudent = await getStudentByKey(
+        "studentNumber",
+        existingAccount.studentNumber,
+      );
+      if (!existingStudent) return token;
+
+      token.student = existingStudent;
+
+      return token;
+    },
+  },
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt" },
+  ...authConfig,
 });

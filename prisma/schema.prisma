@@ -8,31 +8,57 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider = "zod-prisma"
+  output   = "../src/schemas" // (default) the directory where generated zod schemas will be saved
+
+  relationModel = true // (default) Create and export both plain and related models.
+  // relationModel         = "default" // Do not export model without relations.
+  // relationModel         = false // Do not generate related model
+
+  modelCase = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
+  // modelCase             = "camelCase" // Output models using camel case (ex. userModel, postModel)
+
+  modelSuffix = "Schema" // (default) Suffix to apply to your prisma models when naming Zod schemas
+
+  useDecimalJs = false // (default) represent the prisma Decimal type using as a JS number
+  // useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
+
+  // imports = null // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
+
+  // https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
+  prismaJsonNullability = true // (default) uses prisma's scheme for JSON field nullability
+  // prismaJsonNullability = false // allows null assignment to optional JSON fields
+}
+
 model Department {
-  id            Int            @id @default(autoincrement())
+  id            String         @id @default(cuid())
   name          String         @unique @db.VarChar(255)
   teachingUnits TeachingUnit[]
   students      Student[]
 }
 
 model TeachingUnit {
-  id           Int        @id @default(autoincrement())
+  id           String     @id @default(cuid())
   name         String     @db.VarChar(255)
   semester     Int
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId String
   subjects     Subject[]
 
   @@index([departmentId], name: "teaching_unit_index_0")
 }
 
 model Subject {
-  id             Int          @id @default(autoincrement())
-  name           String       @db.VarChar(255)
-  coefficient    Int
-  teachingUnit   TeachingUnit @relation(fields: [teachingUnitId], references: [id])
-  teachingUnitId Int
-  assessments    Assessment[]
+  id              String       @id @default(cuid())
+  name            String       @db.VarChar(255)
+  coefficient     Int
+  ccCoefficient   Int?
+  tpCoefficient   Int?
+  examCoefficient Int?
+  teachingUnit    TeachingUnit @relation(fields: [teachingUnitId], references: [id], onDelete: Cascade)
+  teachingUnitId  String
+  assessments     Assessment[]
 
   @@index([teachingUnitId], name: "subject_index_0")
 }
@@ -44,26 +70,26 @@ enum AssessmentType {
 }
 
 model Assessment {
-  id          Int            @id @default(autoincrement())
+  id          String         @id @default(cuid())
   type        AssessmentType
   date        DateTime       @default(now())
   coefficient Int
   fileName    String         @db.VarChar(255)
   period      Int
-  subject     Subject        @relation(fields: [subjectId], references: [id])
-  subjectId   Int
+  subject     Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subjectId   String
   grades      Grade[]
 
   @@index([subjectId], name: "assessment_index_0")
 }
 
 model Grade {
-  id            Int        @id @default(autoincrement())
+  id            String     @id @default(cuid())
   value         Float
-  student       Student    @relation(fields: [studentNumber], references: [studentNumber])
-  studentNumber Int
-  assessment    Assessment @relation(fields: [assessmentId], references: [id])
-  assessmentId  Int
+  student       Student    @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
+  studentNumber String
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  assessmentId  String
 
   @@index([studentNumber], name: "grade_index_0")
   @@index([assessmentId], name: "grade_index_1")
@@ -76,6 +102,8 @@ enum UserRole {
 
 model User {
   id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
   username       String?   @unique @db.VarChar(30)
   image          String?   @db.VarChar(255)
   hashedPassword String?   @db.VarChar(255)
@@ -87,14 +115,13 @@ model User {
 }
 
 model Student {
-  studentNumber Int        @id
+  studentNumber String     @id
   lastName      String     @db.VarChar(50)
   firstName     String     @db.VarChar(50)
-  email         String     @unique
   entryYear     Int?
   level         Int
-  departmentId  Int
-  department    Department @relation(fields: [departmentId], references: [id])
+  department    Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId  String
   account       Account[]
   grades        Grade[]
 
@@ -103,7 +130,7 @@ model Student {
 }
 
 model Professor {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(cuid())
   lastName  String    @db.VarChar(50)
   firstName String    @db.VarChar(50)
   account   Account[]
@@ -117,8 +144,8 @@ enum AccountType {
 model Account {
   id            String      @id @default(cuid())
   userId        String
-  studentNumber Int?
-  professorId   Int?
+  studentNumber String?
+  professorId   String?
   type          AccountType
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   student       Student?    @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)

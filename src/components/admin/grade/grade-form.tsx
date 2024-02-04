@@ -1,7 +1,6 @@
-import { Input } from "@/components/ui/input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { FormError } from "@/components/form-error";
+import { FormSuccess } from "@/components/form-success";
+import SubmitButton from "@/components/submit-button";
 import {
   Form,
   FormControl,
@@ -10,6 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -17,104 +17,171 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormError } from "@/components/form-error";
-import { FormSuccess } from "@/components/form-success";
-import SubmitButton from "@/components/submit-button";
-import React, { useState, useTransition } from "react";
-import { subjectStore } from "@/store/use-subject";
-import { subject, teaching_unit } from "@prisma/client";
-import GradeDialogPreview from "@/components/admin/grade/grade-preview";
-import { addGrades } from "@/actions/add-admin-function";
-import { teachingUnitStore } from "@/store/use-teaching-unit";
-import { GradeInformationType } from "@/types";
+import { GradeSchema, SubjectSchema } from "@/schemas";
+import { useSubjectStore } from "@/store/use-subject";
+import { useTeachingUnitStore } from "@/store/use-teaching-unit";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { uploadPdfFile } from "@/actions/upload.actions";
+import { v4 as uuidv4 } from "uuid";
+import { createAssessment } from "@/actions/admin/assessment.actions";
+import { createManyGrades } from "@/actions/admin/grade.actions";
+import { fetchGrades } from "@/data/get-all-datas";
+import GradePreviewModal from "@/components/admin/grade/grade-preview-modal";
+import { useStudentStore } from "@/store/use-student";
 
 export type GradeDataType = {
   studentNumber: string;
   value: number;
 };
 
-const GradeForm = () => {
-  const subjects = subjectStore<subject[]>((state: any) => state.subjects);
-  const teachingUnits = teachingUnitStore<teaching_unit[]>(
-    (state: any) => state.teachingUnits,
-  );
+const GradeForm = ({
+  mod,
+  gradeId,
+}: {
+  mod: "create" | "update";
+  gradeId?: string;
+}) => {
+  const subjects = useSubjectStore((state) => state.subjects);
+  const teachingUnits = useTeachingUnitStore((state) => state.teachingUnits);
+  const students = useStudentStore((state) => state.students);
+  const [grades, setGrades] = useState<z.infer<typeof GradeSchema>[]>([]);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
   const [isPreview, setIsPreview] = useState(false);
-  const [gradesData, setGradesData] = useState<GradeDataType[]>([]);
-  const [gradeInformation, setGradeInformation] =
-    useState<GradeInformationType>();
-  const [filteredSubjects, setFilteredSubjects] = useState<subject[]>([]);
+  const [semester, setSemester] = useState(1);
+  const [subjectId, setSubjectId] = useState("");
+  const [type, setType] = useState<"CC" | "TP" | "EXAM">("CC");
+  const [period, setPeriod] = useState(1);
+  const [fileUrl, setFileUrl] = useState("");
+  const [filteredSubjects, setFilteredSubjects] = useState<
+    z.infer<typeof SubjectSchema>[]
+  >([]);
+
+  useEffect(() => {
+    filterSubject(semester);
+  });
 
   const formSchema = z.object({
-    subjectId: z.number().int(),
-    typeOfAssessment: z.enum(["CC", "TP", "EXAM"]),
-    assessmentCoefficient: z.number().int(),
-    period: z.number().int(),
-    file: z.instanceof(File),
+    id: z.string(),
+    subjectId: z
+      .string()
+      .min(1, { message: "Veuillez sélectionner une matière" }),
+    type: z.enum(["CC", "TP", "EXAM"]),
+    period: z.number().int().positive(),
+    files: z.instanceof(FileList).optional(),
   });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      id: uuidv4(),
+      period: 1,
+    },
   });
+  const { register } = form;
 
-  const upload = async (event: any) => {
-    const { subjectId, typeOfAssessment, assessmentCoefficient, file, period } =
-      formSchema.parse(event);
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
+  const uploadGrades = async (grades: z.infer<typeof GradeSchema>[]) => {
+    const validGrades = grades.filter((grade) =>
+      students.some((student) => student.studentNumber === grade.studentNumber),
+    );
+
+    if (validGrades.length === 0) {
+      setError("Aucun étudiant valide trouvé dans le fichier");
+      return;
+    }
+
+    const attachedSubject = subjects.find(
+      (subject) => subject.id === subjectId,
+    );
+
+    let newCoefficient: number;
+    switch (type) {
+      case "CC":
+        newCoefficient = attachedSubject?.ccCoefficient as number;
+        break;
+      case "TP":
+        newCoefficient = attachedSubject?.tpCoefficient as number;
+        break;
+      case "EXAM":
+        newCoefficient = attachedSubject?.examCoefficient as number;
+        break;
+      default:
+        newCoefficient = attachedSubject?.ccCoefficient as number;
+    }
+
+    const assessmentResponse = await createAssessment({
+      id: uuidv4(),
+      subjectId,
+      type,
+      period,
+      coefficient: newCoefficient,
+      fileName: fileUrl,
+      date: new Date(),
     });
 
-    if (response.ok) {
-      const data: GradeDataType[] = await response.json();
-      setGradesData(data);
-      setGradeInformation({
-        data,
-        subjectId,
-        typeOfAssessment,
-        assessmentCoefficient,
-        fileName: file.name,
-        period,
-      });
-      setIsPreview(true);
-    } else {
-      console.error("Erreur lors de l’extraction du texte PDF");
+    if (assessmentResponse.error || !assessmentResponse.assessment) {
+      setError(assessmentResponse.error);
+      return;
     }
+
+    const data: z.infer<typeof GradeSchema>[] = validGrades.map((grade) => ({
+      id: uuidv4(),
+      studentNumber: grade.studentNumber,
+      value: grade.value,
+      assessmentId: assessmentResponse.assessment.id,
+    }));
+
+    startTransition(async () => {
+      const response = await createManyGrades(data);
+      setSuccess(response.success);
+      setError(response.error);
+      console.log(response.error);
+      await fetchGrades();
+    });
   };
 
-  const confirmUpload = async () => {
-    setIsPreview(false);
-    if (gradeInformation) {
-      startTransition(() => {
-        addGrades(gradeInformation).then((data) => {
-          setError(data?.error);
-          setSuccess(data?.success);
-        });
-      });
-      console.log("C'est parti");
-    } else {
-      console.error("Informations de note non définies");
+  const upload = async (values: z.infer<typeof formSchema>) => {
+    setSuccess("");
+    setError("");
+    setSubjectId(values.subjectId);
+    setType(values.type);
+    setPeriod(values.period);
+    const files = values.files;
+    if (!files || files.length === 0) {
+      setError("Aucun fichier sélectionné");
+      return;
     }
+
+    const formData = new FormData();
+    formData.append("file", files[0]);
+    const response = await uploadPdfFile(formData);
+    const grades: {
+      studentNumber: string;
+      value: number;
+    }[] = JSON.parse(response.grades);
+
+    if (grades.length === 0) {
+      setError("Aucune note à uploader");
+      return;
+    }
+    setGrades(grades as z.infer<typeof GradeSchema>[]);
+    setFileUrl(response.url);
+    setIsPreview(true);
   };
 
-  const filterSubject = (selectedSemester: number) => {
+  const filterSubject = (selectedSemester: number = 1) => {
     setFilteredSubjects([]);
     const semesterTeachingUnits = teachingUnits
       .filter((teachingUnit) => teachingUnit.semester === selectedSemester)
       .map((teachingUnit) => teachingUnit.id);
 
-    console.log(semesterTeachingUnits);
-
     for (const subject of subjects) {
-      if (semesterTeachingUnits.includes(subject.teaching_unit_id)) {
-        console.log(subject.teaching_unit_id, true);
+      if (semesterTeachingUnits.includes(subject.teachingUnitId)) {
         setFilteredSubjects((prevSubjects) => [...prevSubjects, subject]);
-      } else {
-        console.log(subject.teaching_unit_id, false);
       }
     }
   };
@@ -126,20 +193,16 @@ const GradeForm = () => {
           <div className={"space-y-4"}>
             <FormField
               control={form.control}
-              name={"file"}
-              render={({ field }) => (
+              name={"files"}
+              render={() => (
                 <FormItem>
                   <FormLabel>Fichier</FormLabel>
                   <FormControl>
                     <Input
+                      {...register("files")}
                       disabled={isPending}
-                      accept="application/pdf"
-                      type="file"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.files ? e.target.files[0] : null,
-                        )
-                      }
+                      accept={"application/pdf"}
+                      type={"file"}
                     />
                   </FormControl>
                   <FormMessage />
@@ -148,12 +211,14 @@ const GradeForm = () => {
             />
             <FormField
               name={"semester"}
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Semestre</FormLabel>
                   <Input
                     type={"number"}
-                    onChange={(e) => filterSubject(Number(e.target.value))}
+                    defaultValue={1}
+                    disabled={isPending}
+                    onChange={(e) => setSemester(Number(e.target.value))}
                   />
                   <FormMessage />
                 </FormItem>
@@ -165,13 +230,7 @@ const GradeForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nom de la matière</FormLabel>
-                  <Select
-                    disabled={isPending}
-                    onValueChange={(val) => {
-                      const numberVal = parseInt(val, 10);
-                      field.onChange(numberVal);
-                    }}
-                  >
+                  <Select disabled={isPending} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner une matière" />
@@ -180,7 +239,7 @@ const GradeForm = () => {
                     <SelectContent>
                       {filteredSubjects.map((subject) => (
                         <SelectItem key={subject.id} value={`${subject.id}`}>
-                          {subject.subject_name}
+                          {subject.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -191,7 +250,7 @@ const GradeForm = () => {
             />
             <FormField
               control={form.control}
-              name={"typeOfAssessment"}
+              name={"type"}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type d'examen</FormLabel>
@@ -213,30 +272,6 @@ const GradeForm = () => {
             />
             <FormField
               control={form.control}
-              name={"assessmentCoefficient"}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Coefficient</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isPending}
-                      {...field}
-                      placeholder={"Coefficient"}
-                      type={"number"}
-                      value={field.value}
-                      defaultValue={field.value}
-                      onChange={(e) => {
-                        const numberVal = parseInt(e.target.value, 10);
-                        field.onChange(numberVal);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name={"period"}
               render={({ field }) => (
                 <FormItem>
@@ -248,7 +283,6 @@ const GradeForm = () => {
                       placeholder={"Période"}
                       type={"number"}
                       value={field.value}
-                      defaultValue={field.value}
                       onChange={(e) => {
                         const numberVal = parseInt(e.target.value, 10);
                         field.onChange(numberVal);
@@ -267,16 +301,12 @@ const GradeForm = () => {
           </SubmitButton>
         </form>
       </Form>
-      {isPreview ? (
-        <GradeDialogPreview
-          isPreview={isPreview}
-          setIsPreview={setIsPreview}
-          gradesData={gradesData}
-          confirmUpload={confirmUpload}
-        />
-      ) : (
-        <></>
-      )}
+      <GradePreviewModal
+        isOpen={isPreview}
+        grades={grades}
+        onClose={() => setIsPreview(false)}
+        onSuccess={async () => await uploadGrades(grades)}
+      />
     </>
   );
 };

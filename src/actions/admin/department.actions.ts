@@ -3,16 +3,12 @@ import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { DepartmentSchema } from "@/schemas";
 
-export const createDepartment = async (
-  data: z.infer<typeof DepartmentSchema>,
-) => {
-  return prisma.department.create({
-    data,
+export const getAllDepartments = async () => {
+  return prisma.department.findMany({
+    orderBy: {
+      id: "asc",
+    },
   });
-};
-
-export const getAllDepartment = async () => {
-  return prisma.department.findMany();
 };
 
 export const getDepartmentByKey = async (key: string, value: string) => {
@@ -20,19 +16,68 @@ export const getDepartmentByKey = async (key: string, value: string) => {
     where: { [key]: value },
   });
 };
-
-export const updateDepartment = async (
-  id: number,
+export const createDepartment = async (
   data: z.infer<typeof DepartmentSchema>,
 ) => {
-  return prisma.department.update({
-    where: { id },
-    data,
-  });
+  try {
+    const department = await prisma.department.create({
+      data,
+    });
+
+    return {
+      success: `${department.name} a été ajouté avec succès`,
+      error: "",
+      department,
+    };
+  } catch (error) {
+    return {
+      success: "",
+      error: "Problème avec la création du département : " + error,
+      department: null,
+    };
+  }
 };
 
-export const deleteDepartment = async (id: number) => {
-  return prisma.department.delete({
-    where: { id },
-  });
+export const updateDepartment = async (
+  id: string,
+  data: z.infer<typeof DepartmentSchema>,
+) => {
+  try {
+    const department = await prisma.department.update({
+      where: { id },
+      data,
+    });
+
+    return {
+      success: `"${department.name}" a été modifié avec succès`,
+      error: "",
+      department,
+    };
+  } catch (error) {
+    return {
+      success: "",
+      error: "Problème avec la modification du département : " + error,
+      department: null,
+    };
+  }
+};
+
+export const deleteDepartment = async (id: string) => {
+  try {
+    const department = await prisma.department.delete({
+      where: { id },
+    });
+
+    return {
+      success: `"${department.name}" a été supprimé avec succès`,
+      error: "",
+      department,
+    };
+  } catch (error) {
+    return {
+      success: "",
+      error: "Problème avec la suppression du département : " + error,
+      department: null,
+    };
+  }
 };

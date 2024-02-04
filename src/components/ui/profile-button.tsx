@@ -20,6 +20,7 @@ import React from "react";
 const ProfileButton = () => {
   const user = useCurrentUser();
   const diceBearAvatarUrl = `https://api.dicebear.com/7.x/big-smile/svg?seed=${user?.email}`;
+
   const finalImage = user?.image ?? diceBearAvatarUrl;
   return (
     <DropdownMenu>

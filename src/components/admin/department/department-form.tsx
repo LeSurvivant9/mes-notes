@@ -1,4 +1,7 @@
-import { createDepartment } from "@/actions/admin/department.actions";
+import {
+  createDepartment,
+  updateDepartment,
+} from "@/actions/admin/department.actions";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import SubmitButton from "@/components/submit-button";
@@ -16,28 +19,49 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { fetchDepartments } from "@/data/get-all-datas";
+import { useDepartmentStore } from "@/store/use-department";
+import { v4 as uuidv4 } from "uuid";
 
-const DepartmentForm = () => {
+const DepartmentForm = ({
+  mod,
+  departmentId,
+}: {
+  mod: "create" | "update";
+  departmentId?: string;
+}) => {
+  const { setDepartments } = useDepartmentStore((state) => state);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof DepartmentSchema>>({
     resolver: zodResolver(DepartmentSchema),
+    defaultValues: {
+      id: uuidv4(),
+      name: "",
+    },
   });
 
   const onSubmit = (values: z.infer<typeof DepartmentSchema>) => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      createDepartment(values).then((department) => {
-        if (department) {
-          setSuccess(`${department.name} a été ajouté avec succès`);
-        } else {
-          setError("Une erreur s'est produite lors de l'ajout du département");
-        }
-        form.reset();
-      });
+      if (mod === "create") {
+        createDepartment(values).then(async (data) => {
+          setSuccess(data.success);
+          setError(data.error);
+          await fetchDepartments();
+          form.reset();
+        });
+      } else {
+        updateDepartment(departmentId as string, values).then(async (data) => {
+          setSuccess(data.success);
+          setError(data.error);
+          await fetchDepartments();
+          form.reset();
+        });
+      }
     });
   };
 

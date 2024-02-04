@@ -17,8 +17,8 @@ const routes = [
     label: "Notes",
   },
   {
-    href: "/ranking",
-    label: "Classement",
+    href: "/simulator",
+    label: "Simulateur",
   },
   {
     href: "/admin",

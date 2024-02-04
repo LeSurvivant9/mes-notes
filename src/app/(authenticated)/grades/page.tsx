@@ -1,46 +1,25 @@
 "use client";
-import { getCompleteStudentGrades } from "@/actions/grade-action";
+import { getAllGradesWithInformation } from "@/actions/admin/grade.actions";
 import Container from "@/components/ui/container";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { z } from "zod";
+import {
+  AssessmentSchema,
+  GradeSchema,
+  SubjectSchema,
+  TeachingUnitSchema,
+} from "@/schemas";
+import { unstable_noStore } from "next/cache";
 
-export type CompleteGradesType = {
-  id: number;
-  studentId: number;
-  gradeValue: number;
-  assessment: {
-    id: number;
-    fileName: string;
-    typeOfAssessment: string;
-    dateOfAssessment: Date;
-    coefficient: number;
-    period: number;
-    subjectId: number;
-    subject: {
-      id: number;
-      subjectName: string;
-      subjectCoefficient: number;
-      teachingUnitId: number;
-      teachingUnit: {
-        id: number;
-        semester: number;
-        teachingUnitName: string;
-        departmentId: number;
-      };
-    };
-  };
-}[];
-
-type AssessmentType = {
-  id: number;
-  fileName: string;
-  gradeValue: number;
-  coefficient: number;
-  period: number;
+type CompleteGradesType = z.infer<typeof GradeSchema> & {
+  assessments: AssessmentType[];
 };
 
-type SubjectType = {
-  name: string;
+type AssessmentType = z.infer<typeof AssessmentSchema>;
+
+type SubjectType = z.infer<typeof SubjectSchema> & {
   totalGrade: number;
   totalCoefficient: number;
   subjectCoefficient: number;
@@ -48,41 +27,40 @@ type SubjectType = {
   assessments: AssessmentType[];
 };
 
-type TeachingUnitType = {
-  name: string;
+type TeachingUnitType = z.infer<typeof TeachingUnitSchema> & {
   totalGrade: number;
   totalCoefficient: number;
   average: number;
-  subjects: { [subjectId: number]: SubjectType };
+  subjects: { [subjectId: string]: SubjectType };
 };
 
 type SemesterType = {
   totalGrade: number;
   totalCoefficient: number;
   average: number;
-  teachingUnits: { [teachingUnitId: number]: TeachingUnitType };
+  teachingUnits: { [teachingUnitId: string]: TeachingUnitType };
 };
 
-const GradesPage = () => {
+const GradesComponent = () => {
+  unstable_noStore();
   const { data: session } = useSession();
-  const studentId = session?.student.id;
+  const studentNumber = session?.student.studentNumber;
   const [organizedGrades, setOrganizedGrades] = useState<SemesterType[]>([]);
 
-  useEffect(() => {
-    if (studentId) {
-      getCompleteStudentGrades(studentId).then((grades: CompleteGradesType) => {
-        const organized = organizeGrades(grades);
-        setOrganizedGrades(organized);
-      });
-    }
-  }, [studentId]);
+  const { data: studentGrades } = useQuery({
+    queryKey: ["grades", studentNumber],
+    queryFn: async () => {
+      const grades = await getAllGradesWithInformation(studentNumber);
+      const organized = organizeGrades(grades);
+      return organized;
+    },
+  });
 
-  function organizeGrades(grades: CompleteGradesType): SemesterType[] {
+  function organizeGrades(grades: CompleteGradesType[]) {
     const semesters: { [key: number]: SemesterType } = {};
-
     grades.forEach((grade) => {
-      const { assessment } = grade;
-      const { subject } = assessment;
+      const { assessments } = grade;
+      const { subjects } = assessments;
       const teachingUnit = subject.teachingUnit;
       const semesterNumber = teachingUnit.semester;
 
@@ -190,14 +168,24 @@ const GradesPage = () => {
                         </p>
                       ))}
                     </div>
-                  )
+                  ),
                 )}
               </div>
-            )
+            ),
           )}
         </div>
       ))}
     </Container>
+  );
+};
+
+const GradesPage = () => {
+  return (
+    <section>
+      <Suspense fallback={<div>Loading...</div>}>
+        <GradesComponent />
+      </Suspense>
+    </section>
   );
 };
 

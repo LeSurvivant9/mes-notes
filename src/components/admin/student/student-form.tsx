@@ -18,160 +18,189 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { departmentStore } from "@/store/admin-store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Department } from "@prisma/client";
-import Papa from "papaparse";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { useDepartmentStore } from "@/store/use-department";
+import Papa from "papaparse";
 import { z } from "zod";
-import StudentPreviewModal from "./student-preview-modal";
+import { createManyStudents } from "@/actions/admin/student.actions";
+import { fetchStudents } from "@/data/get-all-datas";
+import StudentPreviewModal from "@/components/admin/student/student-preview-modal";
+import { StudentSchema } from "@/schemas";
 
-const StudentForm = () => {
+const StudentForm = ({
+  mod,
+  studentNumber,
+}: {
+  mod: "create" | "update";
+  studentNumber?: string;
+}) => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
-  const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
-  const [previewStudents, setPreviewStudents] = useState<unknown[]>([]);
-  const [isPending, setIsPending] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState("");
-  const departments = departmentStore<Department[]>(
-    (state: any) => state.departments
-  );
+  const [isPending, startTransition] = useTransition();
+  const [isPreview, setIsPreview] = useState(false);
+  const [students, setStudents] = useState<z.infer<typeof StudentSchema>[]>([]);
+  const departments = useDepartmentStore((state) => state.departments);
 
   const formSchema = z.object({
-    file: z.any(),
-    department_id: z.string(),
-    level: z.number(),
+    level: z.number().int().positive(),
+    departmentId: z
+      .string()
+      .min(1, { message: "Veuillez sélectionner un département" }),
+    files: z.instanceof(FileList).optional(),
   });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      level: 0,
+      level: 1,
+      departmentId: "",
     },
   });
+  const { register } = form;
 
-  const updateIsPending = (value: boolean) => {
-    setIsPending(value);
+  type ResultDataType = {
+    Code: string;
+    Nom: string;
+    Prenom: string;
   };
 
-  const upload = (event: any) => {
-    const { file, department_id, level } = event;
+  const uploadStudents = (students: z.infer<typeof StudentSchema>[]) => {
+    startTransition(async () => {
+      const response = await createManyStudents(students);
+      setSuccess(response.success);
+      setError(response.error);
+      await fetchStudents();
+    });
+  };
+  const upload = (values: z.infer<typeof formSchema>) => {
+    setSuccess("");
+    setError("");
+    const { files } = values;
 
-    if (!file) {
-      return null;
+    if (!files || files.length === 0) {
+      setError("Aucun fichier sélectionné");
+      return;
     }
 
-    setIsPending(true);
-
-    Papa.parse(file, {
-      skipEmptyLines: true,
-      header: true,
-      complete: function (result) {
-        setSelectedLevel(level);
-        setSelectedDepartment(department_id);
-        setPreviewStudents(result.data);
-        setIsPreviewDialogOpen(true);
-      },
+    if (files[0].type !== "text/csv") {
+      setError("Le fichier doit être au format CSV");
+      return;
+    }
+    startTransition(() => {
+      Papa.parse(files[0], {
+        header: true,
+        skipEmptyLines: true,
+        complete: async function (result) {
+          const resultData: ResultDataType[] = result.data as ResultDataType[];
+          const data = resultData.map((student) => {
+            return {
+              studentNumber: student.Code,
+              lastName: student.Nom,
+              firstName: student.Prenom,
+              departmentId: values.departmentId,
+              level: values.level,
+            };
+          });
+          setStudents(data);
+          setIsPreview(true);
+        },
+        error: function (error) {
+          console.error(error);
+          setError("Erreur lors du chargement du fichier");
+        },
+      });
     });
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(upload)} className={"space-y-6"}>
-        <div className={"space-y-4"}>
-          <FormField
-            control={form.control}
-            name={"department_id"}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Département rattaché</FormLabel>
-                <Select
-                  disabled={isPending}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(upload)} className={"space-y-6"}>
+          <div className={"space-y-4"}>
+            <FormField
+              control={form.control}
+              name={"departmentId"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Département rattaché</FormLabel>
+                  <Select disabled={isPending} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un département" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {departments.map((department) => (
+                        <SelectItem
+                          key={department.id}
+                          value={`${department.id}`}
+                        >
+                          {department.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={"level"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Niveau d'étude</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un département" />
-                    </SelectTrigger>
+                    <Input
+                      disabled={isPending}
+                      {...field}
+                      placeholder={"Niveau d'étude"}
+                      type={"number"}
+                      value={field.value}
+                      onChange={(e) =>
+                        field.onChange(parseInt(e.target.value, 10))
+                      }
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {departments.map((department) => (
-                      <SelectItem
-                        key={department.id}
-                        value={`${department.id}`}
-                      >
-                        {department.departmentName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={"level"}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Niveau d&apos;étude</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    {...field}
-                    placeholder={"1"}
-                    type={"number"}
-                    value={field.value}
-                    defaultValue={field.value}
-                    onChange={(e) =>
-                      field.onChange(parseInt(e.target.value, 10))
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={"file"}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Semestre</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    accept=".csv"
-                    type="file"
-                    onChange={(e) =>
-                      field.onChange(e.target.files ? e.target.files[0] : null)
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <FormError message={error} />
-        <FormSuccess message={success} />
-        <SubmitButton childrenProps={"w-full"} isPending={isPending}>
-          Prévisualiser pour upload
-        </SubmitButton>
-      </form>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={"files"}
+              render={() => (
+                <FormItem>
+                  <FormLabel>Fichier CSV</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...register("files")}
+                      disabled={isPending}
+                      type={"file"}
+                      accept={".csv"}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormError message={error} />
+          <FormSuccess message={success} />
+          <SubmitButton childrenProps={"w-full"} isPending={isPending}>
+            Prévisualiser pour upload
+          </SubmitButton>
+        </form>
+      </Form>
       <StudentPreviewModal
-        isOpen={isPreviewDialogOpen}
-        onClose={() => setIsPreviewDialogOpen(false)}
-        onError={(error) => setError(error)}
-        onSuccess={(success) => setSuccess(success)}
-        setIsPending={updateIsPending}
-        students={previewStudents}
-        level={Number(selectedLevel)}
-        departmentId={Number(selectedDepartment)}
+        isOpen={isPreview}
+        students={students}
+        onSuccess={() => uploadStudents(students)}
+        onClose={() => setIsPreview(false)}
       />
-    </Form>
+    </>
   );
 };
 

@@ -9,25 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { departmentStore } from "@/store/admin-store";
-import { Department } from "@prisma/client";
-import DepartmentForm from "./department-form";
+import { useDepartmentStore } from "@/store/use-department";
+import { deleteDepartment } from "@/actions/admin/department.actions";
+import { fetchDepartments } from "@/data/get-all-datas";
+import DepartmentForm from "@/components/admin/department/department-form";
 
 const DepartmentComponent = () => {
-  const departments = departmentStore<Department[]>(
-    (state: any) => state.departments,
-  );
-
-  const handleDelete = async (departmentId: number | undefined) => {
-    // Logique de suppression ici
-    console.log("Supprimer le département avec l'id:", departmentId);
-  };
-
-  // Fonction pour gérer la modification
-  const handleEdit = (departmentId: number | undefined) => {
-    // Logique de modification ici...
-    console.log("Modifier le département avec l'id :", departmentId);
-  };
+  const departments = useDepartmentStore((state) => state.departments);
 
   return (
     <div className={"text-center"}>
@@ -36,28 +24,42 @@ const DepartmentComponent = () => {
           <Button className={"w-full"}>Ajouter</Button>
         </DialogTrigger>
         <DialogContent>
-          <DepartmentForm />
+          <DepartmentForm mod={"create"} />
         </DialogContent>
       </Dialog>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="text-left">Id</TableHead>
-            <TableHead className="text-right">Nom</TableHead>
+          <TableRow className={"w-full"}>
+            <TableHead className={"text-center w-full"}>Nom</TableHead>
+            <TableHead colSpan={2} className={"text-center"}>
+              Options
+            </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className={"w-full"}>
           {departments?.map((department) => (
             <TableRow key={department.id}>
-              <TableCell>{department.id}</TableCell>
-              <TableCell className="text-right">{department.name}</TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleEdit(department.id)}>
-                  Modifier
-                </Button>
+              <TableCell className={"text-center"}>{department.name}</TableCell>
+              <TableCell className={"text-right"}>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Modifier</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DepartmentForm
+                      mod={"update"}
+                      departmentId={department.id}
+                    />
+                  </DialogContent>
+                </Dialog>
               </TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleDelete(department.id)}>
+              <TableCell className={"text-right"}>
+                <Button
+                  onClick={async () => {
+                    await deleteDepartment(department.id as string);
+                    await fetchDepartments();
+                  }}
+                >
                   Supprimer
                 </Button>
               </TableCell>

@@ -9,28 +9,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { departmentStore } from "@/store/admin-store";
-import { teachingUnitStore } from "@/store/use-teaching-unit";
-import { Department, TeachingUnit } from "@prisma/client";
-import TeachingUnitForm from "./teaching-unit-form";
+import { useTeachingUnitStore } from "@/store/use-teaching-unit";
+import { useDepartmentStore } from "@/store/use-department";
+import { z } from "zod";
+import { TeachingUnitSchema } from "@/schemas";
+import TeachingUnitForm from "@/components/admin/teaching-unit/teaching-unit-form";
+import { fetchTeachingUnits } from "@/data/get-all-datas";
+import { deleteTeachingUnit } from "@/actions/admin/teaching-unit.actions";
 
 const TeachingUnitComponent = () => {
-  const teachingUnits = teachingUnitStore<TeachingUnit[]>(
-    (state: any) => state.teachingUnits,
-  );
-  const departments = departmentStore<Department[]>(
-    (state: any) => state.departments,
-  );
+  const teachingUnits = useTeachingUnitStore((state) => state.teachingUnits);
+  const departments = useDepartmentStore((state) => state.departments);
 
-  const handleDelete = async (teachingUnitId: number | undefined) => {
-    // Logique de suppression ici...
-    console.log("Supprimer le département avec l'id:", teachingUnitId);
-  };
-
-  // Fonction pour gérer la modification
-  const handleEdit = (teachingUnitId: number | undefined) => {
-    // Logique de modification ici...
-    console.log("Modifier le département avec l'id :", teachingUnitId);
+  const getNameAttachedDepartment = (
+    teachingUnit: z.infer<typeof TeachingUnitSchema>,
+  ) => {
+    return departments.find(
+      (department) => department.id === teachingUnit.departmentId,
+    )?.name;
   };
 
   return (
@@ -40,42 +36,54 @@ const TeachingUnitComponent = () => {
           <Button className={"w-full"}>Ajouter</Button>
         </DialogTrigger>
         <DialogContent>
-          <TeachingUnitForm />
+          <TeachingUnitForm mod={"create"} />
         </DialogContent>
       </Dialog>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="">Id</TableHead>
-            <TableHead className="">Nom</TableHead>
-            <TableHead className="">Semestre</TableHead>
-            <TableHead className="text-right">Département rattaché</TableHead>
+            <TableHead className={"text-center w-full"}>Nom</TableHead>
+            <TableHead className={"text-center w-full"}>Semestre</TableHead>
+            <TableHead className={"text-center w-full"}>
+              Département rattaché
+            </TableHead>
+            <TableHead colSpan={2} className={"text-center w-full"}>
+              Options
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {teachingUnits?.map((teachingUnit) => (
             <TableRow key={teachingUnit.id}>
-              <TableCell>{teachingUnit.id}</TableCell>
-              <TableCell className="text-center">
-                {teachingUnit.teachingUnitName}
+              <TableCell className={"text-center"}>
+                {teachingUnit.name}
               </TableCell>
-              <TableCell className="text-center">
+              <TableCell className={"text-center"}>
                 {teachingUnit.semester}
               </TableCell>
-              <TableCell className="text-right">
-                {
-                  departments.filter(
-                    (department) => department.id === teachingUnit.departmentId,
-                  )[0].departmentName
-                }
+              <TableCell className={"text-center"}>
+                {getNameAttachedDepartment(teachingUnit)}
               </TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleEdit(teachingUnit.id)}>
-                  Modifier
-                </Button>
+              <TableCell className={"text-right"}>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Modifier</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <TeachingUnitForm
+                      mod={"update"}
+                      teachingUnitId={teachingUnit.id}
+                    />
+                  </DialogContent>
+                </Dialog>
               </TableCell>
-              <TableCell className={"p-0 m-0 gap-x-0"}>
-                <Button onClick={() => handleDelete(teachingUnit.id)}>
+              <TableCell className={"text-right"}>
+                <Button
+                  onClick={async () => {
+                    await deleteTeachingUnit(teachingUnit.id as string);
+                    await fetchTeachingUnits();
+                  }}
+                >
                   Supprimer
                 </Button>
               </TableCell>
@@ -85,7 +93,7 @@ const TeachingUnitComponent = () => {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={4}>Total</TableCell>
-            <TableCell className="text-right">
+            <TableCell className={"text-right"}>
               {teachingUnits?.length}
             </TableCell>
           </TableRow>

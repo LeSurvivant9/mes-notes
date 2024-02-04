@@ -1,5 +1,5 @@
 "use client";
-import { addSubject } from "@/actions/add-admin-function";
+
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import SubmitButton from "@/components/submit-button";
@@ -19,69 +19,87 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SubjectSchema } from "@/schemas";
-import { departmentStore } from "@/store/admin-store";
-import { subjectStore } from "@/store/use-subject";
-import { teachingUnitStore } from "@/store/use-teaching-unit";
+import { SubjectSchema, TeachingUnitSchema } from "@/schemas";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Department, Subject, TeachingUnit } from "@prisma/client";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useDepartmentStore } from "@/store/use-department";
+import { useTeachingUnitStore } from "@/store/use-teaching-unit";
+import { fetchSubjects } from "@/data/get-all-datas";
+import { createSubject, updateSubject } from "@/actions/admin/subject.actions";
+import { v4 as uuidv4 } from "uuid";
 
-const SubjectForm = () => {
+const SubjectForm = ({
+  mod,
+  subjectId,
+}: {
+  mod: "create" | "update";
+  subjectId?: string;
+}) => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
-  const [semester, setSemester] = useState("0");
-  const [departmentId, setDepartmentId] = useState("0");
+  const [semester, setSemester] = useState(1);
+  const [departmentId, setDepartmentId] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedTeachingUnit, setSelectedTeachingUnit] = useState("");
   const [filteredTeachingUnits, setFilteredTeachingUnits] =
-    useState<TeachingUnit[]>();
+    useState<z.infer<typeof TeachingUnitSchema>[]>();
   const [isPending, startTransition] = useTransition();
-  const departments = departmentStore<Department[]>(
-    (state: any) => state.departments,
-  );
-  const teachingUnits = teachingUnitStore<TeachingUnit[]>(
-    (state: any) => state.teachingUnits,
-  );
-  const fetchSubjects = subjectStore((state: any) => state.fetchSubjects);
+  const departments = useDepartmentStore((state) => state.departments);
+  const teachingUnits = useTeachingUnitStore((state) => state.teachingUnits);
 
-  const form = useForm<Subject>({
+  const form = useForm<z.infer<typeof SubjectSchema>>({
     resolver: zodResolver(SubjectSchema),
     defaultValues: {
-      subjectName: "",
+      id: uuidv4(),
+      name: "",
+      coefficient: 1,
+      ccCoefficient: 0,
+      tpCoefficient: 0,
+      examCoefficient: 0,
     },
   });
 
   const sortedTeachingUnits = (
-    subjectSemester: string,
+    subjectSemester: number,
     departmentId: string,
   ) => {
     setSemester(subjectSemester);
     setDepartmentId(departmentId);
     const filteredTeachingUnits = teachingUnits.filter(
       (teachingUnit) =>
-        teachingUnit.semester === Number(subjectSemester) &&
-        teachingUnit.departmentId === Number(departmentId),
+        teachingUnit.semester === subjectSemester &&
+        teachingUnit.departmentId === departmentId,
     );
     setFilteredTeachingUnits(filteredTeachingUnits);
   };
 
-  const onSubmit = (values: Subject) => {
+  const onSubmit = (values: any) => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      addSubject(values).then((data) => {
-        if (data?.success) {
-          // setSelectedDepartment("");
-          setSelectedTeachingUnit("");
-          setSuccess(data?.success);
-          form.reset();
-          fetchSubjects();
-        } else {
-          setError(data?.error);
-        }
-      });
+      values.ccCoefficient =
+        values.ccCoefficient === 0 ? null : values.ccCoefficient;
+      values.tpCoefficient =
+        values.tpCoefficient === 0 ? null : values.tpCoefficient;
+      values.examCoefficient =
+        values.examCoefficient === 0 ? null : values.examCoefficient;
+
+      if (mod === "create") {
+        createSubject(values).then(async (data) => {
+          setError(data.error);
+          setSuccess(data.success);
+          await fetchSubjects();
+        });
+      } else {
+        updateSubject(subjectId as string, values).then(async (data) => {
+          setSuccess(data.success);
+          setError(data.error);
+          await fetchSubjects();
+        });
+      }
+      form.reset();
     });
   };
 
@@ -91,7 +109,7 @@ const SubjectForm = () => {
         <div className={"space-y-4"}>
           <FormField
             control={form.control}
-            name={"subjectName"}
+            name={"name"}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nom de la matière</FormLabel>
@@ -109,7 +127,7 @@ const SubjectForm = () => {
           />
           <FormField
             control={form.control}
-            name={"subjectCoefficient"}
+            name={"coefficient"}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Coefficient</FormLabel>
@@ -130,7 +148,73 @@ const SubjectForm = () => {
             )}
           />
           <FormField
-            name={"department_id"}
+            control={form.control}
+            name={"ccCoefficient"}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Coefficient de contrôle continu</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    {...field}
+                    placeholder={"1"}
+                    type={"number"}
+                    value={field.value as number}
+                    onChange={(e) =>
+                      field.onChange(parseInt(e.target.value, 10))
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name={"tpCoefficient"}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Coefficient de TP</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    {...field}
+                    placeholder={"1"}
+                    type={"number"}
+                    value={field.value as number}
+                    onChange={(e) =>
+                      field.onChange(parseInt(e.target.value, 10))
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name={"examCoefficient"}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Coefficient de DS</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    {...field}
+                    placeholder={"1"}
+                    type={"number"}
+                    value={field.value as number}
+                    onChange={(e) =>
+                      field.onChange(parseInt(e.target.value, 10))
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name={"departmentId"}
             render={() => (
               <FormItem>
                 <FormLabel>Département rattaché</FormLabel>
@@ -153,7 +237,7 @@ const SubjectForm = () => {
                         key={department.id}
                         value={`${department.id}`}
                       >
-                        {department.departmentName}
+                        {department.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -164,18 +248,20 @@ const SubjectForm = () => {
           />
           <FormField
             name={"semester"}
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Semestre</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    {...field}
                     placeholder={"1"}
-                    type={"text"}
-                    value={field.value}
+                    type={"number"}
+                    value={semester}
                     onChange={(e) =>
-                      sortedTeachingUnits(e.target.value, departmentId)
+                      sortedTeachingUnits(
+                        parseInt(e.target.value, 10),
+                        departmentId,
+                      )
                     }
                   />
                 </FormControl>
@@ -188,18 +274,15 @@ const SubjectForm = () => {
             name={"teachingUnitId"}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Unité d&apos;enseignement rattachée</FormLabel>
+                <FormLabel>Unité d'enseignement rattachée</FormLabel>
                 <Select
-                  value={selectedTeachingUnit}
+                  value={field.value}
                   disabled={isPending}
-                  onValueChange={(val) => {
-                    field.onChange(parseInt(val, 10));
-                    setSelectedTeachingUnit(val);
-                  }}
+                  onValueChange={field.onChange}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un département" />
+                      <SelectValue placeholder="Sélectionner une unité d'enseignement" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -208,7 +291,7 @@ const SubjectForm = () => {
                         key={teachingUnit.id}
                         value={`${teachingUnit.id}`}
                       >
-                        {teachingUnit.teachingUnitName}
+                        {teachingUnit.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

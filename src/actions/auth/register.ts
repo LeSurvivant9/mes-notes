@@ -1,31 +1,27 @@
 "use server";
-import { getStudentByStudentNumber, getUserByEmail } from "@/data/users";
 import { sendVerificationEmail } from "@/lib/mail";
 import prisma from "@/lib/prisma";
 import { generateVerificationToken } from "@/lib/tokens";
 import { capitalize, removeAccents, toUpperCase } from "@/lib/utils";
-import { RegisterSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas/auth";
 import { AccountType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { getUserByKey } from "@/actions/auth/user.actions";
+import { getStudentByKey } from "@/actions/admin/student.actions";
+import { v4 as uuidv4 } from "uuid";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   try {
-    const validatedFields = RegisterSchema.safeParse(values);
-    if (!validatedFields.success) {
-      return { error: "Invalid field!" };
-    }
-
-    const { lastName, firstName, studentNumber, email, password } =
-      validatedFields.data;
+    const { lastName, firstName, studentNumber, email, password } = values;
     const lowerCaseEmail = email.toLowerCase();
     const normalizedLastName = toUpperCase(removeAccents(lastName));
     const normalizedFirstName = capitalize(removeAccents(firstName));
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [existingUser, existingStudent] = await Promise.all([
-      getUserByEmail(lowerCaseEmail),
-      getStudentByStudentNumber(studentNumber),
+      getUserByKey("email", lowerCaseEmail),
+      getStudentByKey("studentNumber", studentNumber),
     ]);
 
     if (existingUser) {
@@ -33,46 +29,40 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     }
     if (
       !existingStudent ||
-      existingStudent.last_name != normalizedLastName ||
-      existingStudent.first_name != normalizedFirstName
+      existingStudent.lastName !== normalizedLastName ||
+      existingStudent.firstName !== normalizedFirstName
     ) {
       return { error: "Informations incorrectes, veuillez réessayer" };
     }
 
-    await prisma.$transaction([
-      prisma.user.create({
-        data: {
-          email: lowerCaseEmail,
-          hashedPassword: hashedPassword,
-        },
-      }),
-    ]);
     await prisma.$transaction(async (prisma) => {
       const user = await prisma.user.create({
         data: {
+          id: uuidv4(),
+          name: `${normalizedFirstName} ${normalizedLastName}`,
           email: lowerCaseEmail,
-          hashed_password: hashedPassword,
+          hashedPassword: hashedPassword,
         },
       });
 
       await prisma.account.create({
         data: {
-          user_id: user.id,
-          student_id: existingStudent.id,
+          userId: user.id,
+          studentNumber: existingStudent.studentNumber,
           type: AccountType.STUDENT,
         },
       });
     });
 
     const verificationToken = await generateVerificationToken(lowerCaseEmail);
-    await sendVerificationEmail(
+    const response = await sendVerificationEmail(
       verificationToken.email,
       verificationToken.token,
     );
 
-    return { success: "Email de confirmation envoyé" };
+    return { success: response.success, error: response.error };
   } catch (error) {
     console.error(error);
-    return { error: "Oop! Veuillez recharger la page et réessayer" };
+    return { error: "Oops! Veuillez recharger la page et réessayer" };
   }
 };
