@@ -15,7 +15,6 @@ export async function sendMail({
 }) {
   const { SMTP_EMAIL, SMTP_PASSWORD, SMTP_HOST, SMTP_PORT } = process.env;
 
-  console.log(SMTP_EMAIL, SMTP_PASSWORD, SMTP_HOST, SMTP_PORT);
   const transport = nodemailer.createTransport({
     host: SMTP_HOST,
     port: Number(SMTP_PORT),

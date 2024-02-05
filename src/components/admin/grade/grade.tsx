@@ -15,8 +15,6 @@ import { useSubjectStore } from "@/store/use-subject";
 import { fetchGrades } from "@/data/get-all-datas";
 import { deleteGrade } from "@/actions/admin/grade.actions";
 import GradeForm from "@/components/admin/grade/grade-form";
-import GradePreviewModal from "@/components/admin/grade/grade-preview-modal";
-import { useState } from "react";
 
 const GradePage = () => {
   const grades = useGradeStore((state) => state.grades);

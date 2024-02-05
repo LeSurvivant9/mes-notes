@@ -1,3 +1,4 @@
+"use server";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { UserSchema } from "@/schemas";
@@ -34,10 +35,7 @@ export const createUser = async (data: z.infer<typeof UserSchema>) => {
   }
 };
 
-export const updateUser = async (
-  id: string,
-  data: z.infer<typeof UserSchema>,
-) => {
+export const updateUser = async (id: string, data: object) => {
   try {
     const user = await prisma.user.update({
       where: { id },
@@ -48,10 +46,10 @@ export const updateUser = async (
       error: "",
       user,
     };
-  } catch {
+  } catch (error) {
     return {
       success: "",
-      error: "Problème avec la modification de l'utilisateur",
+      error: "Problème avec la modification de l'utilisateur" + error,
       user: null,
     };
   }

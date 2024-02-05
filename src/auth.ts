@@ -41,13 +41,9 @@ export const {
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
-      if (token.role && session.user) {
-        session.user.role = token.role as UserRole;
-      }
+      session.user.role = token.role as UserRole;
 
-      if (token.student && session.user) {
-        session.student = token.student as z.infer<typeof StudentSchema>;
-      }
+      session.student = token.student as z.infer<typeof StudentSchema>;
 
       return session;
     },
@@ -62,13 +58,10 @@ export const {
       const existingAccount = await getAccountByKey("userId", existingUser.id);
       if (!existingAccount || !existingAccount.studentNumber) return token;
 
-      const existingStudent = await getStudentByKey(
+      token.student = await getStudentByKey(
         "studentNumber",
         existingAccount.studentNumber,
       );
-      if (!existingStudent) return token;
-
-      token.student = existingStudent;
 
       return token;
     },

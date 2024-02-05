@@ -1,190 +1,127 @@
 "use client";
 import { getAllGradesWithInformation } from "@/actions/admin/grade.actions";
 import Container from "@/components/ui/container";
-import { useSession } from "next-auth/react";
-import { Suspense, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { z } from "zod";
 import {
-  AssessmentSchema,
-  GradeSchema,
-  SubjectSchema,
-  TeachingUnitSchema,
-} from "@/schemas";
-import { unstable_noStore } from "next/cache";
+  AssessmentType,
+  GradesWithInformationType,
+  organizeGradesIntoSemesters,
+  SemesterType,
+  SubjectType,
+  TeachingUnitType,
+} from "@/data/organize-grades";
+import { useCurrentStudent } from "@/hooks/use-current-user";
+import { useQuery } from "@tanstack/react-query";
 
-type CompleteGradesType = z.infer<typeof GradeSchema> & {
-  assessments: AssessmentType[];
+const TeachingUnitComponent = ({
+  teachingUnit,
+}: {
+  teachingUnit: TeachingUnitType;
+}) => {
+  return (
+    <div className="teaching-unit">
+      <h2>
+        {teachingUnit.name} | Moyenne : {teachingUnit.average.toFixed(2)}
+      </h2>
+      {Object.values(teachingUnit.subjects).map((subject) => (
+        <SubjectComponent key={subject.id} subject={subject} />
+      ))}
+    </div>
+  );
 };
 
-type AssessmentType = z.infer<typeof AssessmentSchema>;
-
-type SubjectType = z.infer<typeof SubjectSchema> & {
-  totalGrade: number;
-  totalCoefficient: number;
-  subjectCoefficient: number;
-  average: number;
-  assessments: AssessmentType[];
+const SubjectComponent = ({ subject }: { subject: SubjectType }) => {
+  return (
+    <div className="subject">
+      <h3>
+        {subject.name} | Coefficient : {subject.coefficient} | Moyenne :{" "}
+        {subject.average.toFixed(2)}
+      </h3>
+      {subject.assessments.map((assessment) => (
+        <AssessmentComponent key={assessment.id} assessment={assessment} />
+      ))}
+    </div>
+  );
 };
 
-type TeachingUnitType = z.infer<typeof TeachingUnitSchema> & {
-  totalGrade: number;
-  totalCoefficient: number;
-  average: number;
-  subjects: { [subjectId: string]: SubjectType };
+const AssessmentComponent = ({
+  assessment,
+}: {
+  assessment: AssessmentType;
+}) => {
+  return (
+    <div className="assessment">
+      <p>
+        {assessment.fileName} | {assessment.type} | Note : {assessment.grade} |{" "}
+        {new Date(assessment.date).toLocaleDateString()} | Période :{" "}
+        {assessment.period} | Coefficient : {assessment.coefficient}
+      </p>
+    </div>
+  );
 };
 
-type SemesterType = {
-  totalGrade: number;
-  totalCoefficient: number;
-  average: number;
-  teachingUnits: { [teachingUnitId: string]: TeachingUnitType };
+const SemesterComponent = ({
+  semester,
+  semesterNumber,
+}: {
+  semester: SemesterType;
+  semesterNumber: number;
+}) => {
+  return (
+    <div className="semester">
+      <h2 className={"w-full text-center my-2"}>
+        Semestre {semesterNumber} | Moyenne : {semester.average.toFixed(2)}
+      </h2>
+      {Object.values(semester.teachingUnits).map((teachingUnit) => (
+        <TeachingUnitComponent
+          key={teachingUnit.id}
+          teachingUnit={teachingUnit}
+        />
+      ))}
+    </div>
+  );
 };
 
 const GradesComponent = () => {
-  unstable_noStore();
-  const { data: session } = useSession();
-  const studentNumber = session?.student.studentNumber;
-  const [organizedGrades, setOrganizedGrades] = useState<SemesterType[]>([]);
+  const student = useCurrentStudent();
+  const studentNumber = student?.studentNumber || "";
 
-  const { data: studentGrades } = useQuery({
+  const { data: studentGrades, isLoading } = useQuery({
     queryKey: ["grades", studentNumber],
-    queryFn: async () => {
-      const grades = await getAllGradesWithInformation(studentNumber);
-      const organized = organizeGrades(grades);
-      return organized;
-    },
+    queryFn: async () => await getAllGradesWithInformation(studentNumber),
   });
 
-  function organizeGrades(grades: CompleteGradesType[]) {
-    const semesters: { [key: number]: SemesterType } = {};
-    grades.forEach((grade) => {
-      const { assessments } = grade;
-      const { subjects } = assessments;
-      const teachingUnit = subject.teachingUnit;
-      const semesterNumber = teachingUnit.semester;
-
-      if (!semesters[semesterNumber]) {
-        semesters[semesterNumber] = {
-          average: 0,
-          totalGrade: 0,
-          totalCoefficient: 0,
-          teachingUnits: {},
-        };
-      }
-
-      if (!semesters[semesterNumber].teachingUnits[teachingUnit.id]) {
-        semesters[semesterNumber].teachingUnits[teachingUnit.id] = {
-          average: 0,
-          name: teachingUnit.teachingUnitName,
-          totalGrade: 0,
-          totalCoefficient: 0,
-          subjects: {},
-        };
-      }
-
-      if (
-        !semesters[semesterNumber].teachingUnits[teachingUnit.id].subjects[
-          subject.id
-        ]
-      ) {
-        semesters[semesterNumber].teachingUnits[teachingUnit.id].subjects[
-          subject.id
-        ] = {
-          name: subject.subjectName,
-          totalGrade: 0,
-          totalCoefficient: 0,
-          subjectCoefficient: subject.subjectCoefficient,
-          average: 0,
-          assessments: [],
-        };
-      }
-
-      const subjectData =
-        semesters[semesterNumber].teachingUnits[teachingUnit.id].subjects[
-          subject.id
-        ];
-      subjectData.assessments.push({
-        id: assessment.id,
-        fileName: assessment.fileName,
-        gradeValue: grade.gradeValue,
-        coefficient: assessment.coefficient,
-        period: assessment.period,
-      });
-
-      const gradeValueTimesCoefficient =
-        grade.gradeValue * assessment.coefficient;
-      subjectData.totalGrade += gradeValueTimesCoefficient;
-      subjectData.totalCoefficient += assessment.coefficient;
-    });
-
-    Object.values(semesters).forEach((semester) => {
-      Object.values(semester.teachingUnits).forEach((teachingUnit) => {
-        Object.values(teachingUnit.subjects).forEach((subject) => {
-          subject.average = subject.totalGrade / subject.totalCoefficient;
-          teachingUnit.totalGrade +=
-            subject.average * subject.subjectCoefficient;
-          teachingUnit.totalCoefficient += subject.subjectCoefficient;
-        });
-        teachingUnit.average =
-          teachingUnit.totalGrade / teachingUnit.totalCoefficient;
-        semester.totalGrade += teachingUnit.average;
-        semester.totalCoefficient += 1;
-      });
-      semester.average = semester.totalGrade / semester.totalCoefficient;
-    });
-
-    return Object.values(semesters);
+  if (isLoading) {
+    return <div>Chargement...</div>;
   }
 
+  const organizedGrades = organizeGradesIntoSemesters(
+    studentGrades as GradesWithInformationType[],
+  );
+
   return (
-    <Container>
-      {Object.entries(organizedGrades).map(([semesterNumber, semesterData]) => (
-        <div key={semesterNumber}>
-          <h2>
-            Semestre {semesterNumber} - Moyenne générale:{" "}
-            {semesterData.average.toFixed(2)}
-          </h2>
-          {Object.entries(semesterData.teachingUnits).map(
-            ([teachingUnitId, teachingUnitData]) => (
-              <div key={teachingUnitId}>
-                <h3>
-                  UE {teachingUnitData.name} - Moyenne de l'UE:{" "}
-                  {teachingUnitData.average.toFixed(2)}
-                </h3>
-                {Object.entries(teachingUnitData.subjects).map(
-                  ([subjectId, subjectData]) => (
-                    <div key={subjectId}>
-                      <h4>
-                        {subjectData.name} - Moyenne de la matière:{" "}
-                        {subjectData.average.toFixed(2)} - Poids :{" "}
-                        {subjectData.subjectCoefficient}
-                      </h4>
-                      {subjectData.assessments.map((assessment) => (
-                        <p key={assessment.id}>
-                          {assessment.fileName} | Note: {assessment.gradeValue}{" "}
-                          | Coefficient: {assessment.coefficient} | Période:{" "}
-                          {assessment.period}
-                        </p>
-                      ))}
-                    </div>
-                  ),
-                )}
-              </div>
-            ),
-          )}
-        </div>
+    <>
+      {Object.values(organizedGrades).map((semester, index) => (
+        <SemesterComponent
+          key={index}
+          semester={semester}
+          semesterNumber={index + 1}
+        />
       ))}
-    </Container>
+    </>
   );
 };
 
 const GradesPage = () => {
   return (
     <section>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Container>
+        <h1
+          className={"w-full items-center text-center font-bold justify-center"}
+        >
+          Notes
+        </h1>
         <GradesComponent />
-      </Suspense>
+      </Container>
     </section>
   );
 };

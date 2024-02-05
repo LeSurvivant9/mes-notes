@@ -1,6 +1,13 @@
-import * as z from "zod"
-import { AccountType } from "@prisma/client"
-import { CompleteUser, RelatedUserSchema, CompleteStudent, RelatedStudentSchema, CompleteProfessor, RelatedProfessorSchema } from "./index"
+import * as z from "zod";
+import { AccountType } from "@prisma/client";
+import {
+  CompleteProfessor,
+  CompleteStudent,
+  CompleteUser,
+  RelatedProfessorSchema,
+  RelatedStudentSchema,
+  RelatedUserSchema,
+} from "./index";
 
 export const AccountSchema = z.object({
   id: z.string(),
@@ -8,12 +15,12 @@ export const AccountSchema = z.object({
   studentNumber: z.string().nullish(),
   professorId: z.string().nullish(),
   type: z.nativeEnum(AccountType),
-})
+});
 
 export interface CompleteAccount extends z.infer<typeof AccountSchema> {
-  user: CompleteUser
-  student?: CompleteStudent | null
-  professor?: CompleteProfessor | null
+  user: CompleteUser;
+  student?: CompleteStudent | null;
+  professor?: CompleteProfessor | null;
 }
 
 /**
@@ -21,8 +28,10 @@ export interface CompleteAccount extends z.infer<typeof AccountSchema> {
  *
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
-export const RelatedAccountSchema: z.ZodSchema<CompleteAccount> = z.lazy(() => AccountSchema.extend({
-  user: RelatedUserSchema,
-  student: RelatedStudentSchema.nullish(),
-  professor: RelatedProfessorSchema.nullish(),
-}))
+export const RelatedAccountSchema: z.ZodSchema<CompleteAccount> = z.lazy(() =>
+  AccountSchema.extend({
+    user: RelatedUserSchema,
+    student: RelatedStudentSchema.nullish(),
+    professor: RelatedProfessorSchema.nullish(),
+  }),
+);

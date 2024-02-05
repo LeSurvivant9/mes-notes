@@ -3,14 +3,20 @@
  * These routes do not require authentication.
  * @type {string[]}
  */
-export const publicRoutes: string[] = ["/auth/new-verification", "/upload",];
+export const publicRoutes: string[] = ["/auth/new-verification", "/upload"];
 
 /**
  * An array of routes that are used for authentication.
  * These routes will redirect logged-in users to /settings.
  * @type {string[]}
  */
-export const authRoutes: string[] = ["/auth/login", "/auth/register", "/auth/error", "/auth/reset", "/auth/new-password",];
+export const authRoutes: string[] = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/error",
+  "/auth/reset",
+  "/auth/new-password",
+];
 
 /**
  * An array of routes that are forbidden for everyone.
@@ -18,7 +24,7 @@ export const authRoutes: string[] = ["/auth/login", "/auth/register", "/auth/err
  * @type {string[]}
  */
 export const forbiddenRoutes: string[] = [
-    // "/admin",
+  // "/admin",
 ];
 
 /**

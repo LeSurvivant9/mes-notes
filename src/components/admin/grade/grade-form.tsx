@@ -61,9 +61,22 @@ const GradeForm = ({
     z.infer<typeof SubjectSchema>[]
   >([]);
 
+  function filterSubject(selectedSemester: number = 1) {
+    setFilteredSubjects([]);
+    const semesterTeachingUnits = teachingUnits
+      .filter((teachingUnit) => teachingUnit.semester === selectedSemester)
+      .map((teachingUnit) => teachingUnit.id);
+
+    for (const subject of subjects) {
+      if (semesterTeachingUnits.includes(subject.teachingUnitId)) {
+        setFilteredSubjects((prevSubjects) => [...prevSubjects, subject]);
+      }
+    }
+  }
+
   useEffect(() => {
     filterSubject(semester);
-  });
+  }, [semester]);
 
   const formSchema = z.object({
     id: z.string(),
@@ -139,7 +152,6 @@ const GradeForm = ({
       const response = await createManyGrades(data);
       setSuccess(response.success);
       setError(response.error);
-      console.log(response.error);
       await fetchGrades();
     });
   };
@@ -171,19 +183,6 @@ const GradeForm = ({
     setGrades(grades as z.infer<typeof GradeSchema>[]);
     setFileUrl(response.url);
     setIsPreview(true);
-  };
-
-  const filterSubject = (selectedSemester: number = 1) => {
-    setFilteredSubjects([]);
-    const semesterTeachingUnits = teachingUnits
-      .filter((teachingUnit) => teachingUnit.semester === selectedSemester)
-      .map((teachingUnit) => teachingUnit.id);
-
-    for (const subject of subjects) {
-      if (semesterTeachingUnits.includes(subject.teachingUnitId)) {
-        setFilteredSubjects((prevSubjects) => [...prevSubjects, subject]);
-      }
-    }
   };
 
   return (

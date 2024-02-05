@@ -14,11 +14,12 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { ImExit } from "react-icons/im";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
-import { useCurrentUser } from "@/hooks/use-current-user";
 import React from "react";
+import { useUserStore } from "@/store/use-user";
 
 const ProfileButton = () => {
-  const user = useCurrentUser();
+  const { user } = useUserStore();
+
   const diceBearAvatarUrl = `https://api.dicebear.com/7.x/big-smile/svg?seed=${user?.email}`;
 
   const finalImage = user?.image ?? diceBearAvatarUrl;
