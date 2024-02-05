@@ -25,19 +25,11 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const queryClient = new QueryClient();
-
-  queryClient.prefetchQuery({
-    queryKey: ["allData"],
-    queryFn: fetchAllData,
-  });
   return (
     <html lang="fr">
       <body className={clsx(poppins.className, "w-full h-full break-words")}>
         <Providers>
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <Suspense fallback={<div>Chargement...</div>}>{children}</Suspense>
-          </HydrationBoundary>
+          <Suspense fallback={<div>Chargement...</div>}>{children}</Suspense>
         </Providers>
         <Toaster />
         <SpeedInsights />

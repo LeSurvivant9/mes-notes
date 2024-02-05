@@ -71,7 +71,7 @@ const GradeForm = ({
     }
 
     filterSubject(semester);
-  }, [semester]);
+  }, [semester, subjects, teachingUnits]);
 
   const formSchema = z.object({
     id: z.string(),
