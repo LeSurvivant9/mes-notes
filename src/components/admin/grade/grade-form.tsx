@@ -32,11 +32,6 @@ import { fetchGrades } from "@/data/get-all-datas";
 import GradePreviewModal from "@/components/admin/grade/grade-preview-modal";
 import { useStudentStore } from "@/store/use-student";
 
-export type GradeDataType = {
-  studentNumber: string;
-  value: number;
-};
-
 const GradeForm = ({
   mod,
   gradeId,
@@ -61,20 +56,20 @@ const GradeForm = ({
     z.infer<typeof SubjectSchema>[]
   >([]);
 
-  function filterSubject(selectedSemester: number = 1) {
-    setFilteredSubjects([]);
-    const semesterTeachingUnits = teachingUnits
-      .filter((teachingUnit) => teachingUnit.semester === selectedSemester)
-      .map((teachingUnit) => teachingUnit.id);
+  useEffect(() => {
+    function filterSubject(selectedSemester: number = 1) {
+      setFilteredSubjects([]);
+      const semesterTeachingUnits = teachingUnits
+        .filter((teachingUnit) => teachingUnit.semester === selectedSemester)
+        .map((teachingUnit) => teachingUnit.id);
 
-    for (const subject of subjects) {
-      if (semesterTeachingUnits.includes(subject.teachingUnitId)) {
-        setFilteredSubjects((prevSubjects) => [...prevSubjects, subject]);
+      for (const subject of subjects) {
+        if (semesterTeachingUnits.includes(subject.teachingUnitId)) {
+          setFilteredSubjects((prevSubjects) => [...prevSubjects, subject]);
+        }
       }
     }
-  }
 
-  useEffect(() => {
     filterSubject(semester);
   }, [semester]);
 

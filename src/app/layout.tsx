@@ -4,7 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { clsx } from "clsx";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import React from "react";
+import React, { Suspense } from "react";
 import "./globals.css";
 import {
   dehydrate,
@@ -36,7 +36,7 @@ export default function RootLayout({
       <body className={clsx(poppins.className, "w-full h-full break-words")}>
         <Providers>
           <HydrationBoundary state={dehydrate(queryClient)}>
-            {children}
+            <Suspense fallback={<div>Chargement...</div>}>{children}</Suspense>
           </HydrationBoundary>
         </Providers>
         <Toaster />
