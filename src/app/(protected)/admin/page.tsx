@@ -10,20 +10,11 @@ import { fetchAllData } from "@/data/get-all-datas";
 import AdminComponent from "@/components/admin/admin";
 
 export default async function AdminPage() {
-  const queryClient = new QueryClient();
-
-  await queryClient.prefetchQuery({
-    queryKey: ["allData"],
-    queryFn: async () => fetchAllData(),
-  });
-
   return (
     <ThemeProvider attribute={"class"} defaultTheme={"system"} enableSystem>
       <Navbar />
       <Container>
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <AdminComponent />
-        </HydrationBoundary>
+        <AdminComponent />
       </Container>
     </ThemeProvider>
   );

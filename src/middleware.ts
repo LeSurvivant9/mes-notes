@@ -21,7 +21,7 @@ export default auth((req) => {
   const isForbiddenRoute = forbiddenRoutes.includes(nextUrl.pathname);
 
   if (isForbiddenRoute) {
-    return Response.redirect(`${baseUrl}/`);
+    return Response.redirect(new URL("/", nextUrl));
   }
 
   if (isApiAuthRoute) {
@@ -30,7 +30,7 @@ export default auth((req) => {
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return Response.redirect(`${baseUrl}/${DEFAULT_LOGIN_REDIRECT}`);
+      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
     }
     return null;
   }
@@ -44,7 +44,7 @@ export default auth((req) => {
     const encodedCallBackUrl = encodeURIComponent(callbackUrl);
 
     return Response.redirect(
-      `${baseUrl}/auth/login?callbackUrl=${encodedCallBackUrl}`,
+      new URL(`/auth/login?callbackUrl=${encodedCallBackUrl}`, nextUrl),
     );
   }
 

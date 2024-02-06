@@ -1,15 +1,15 @@
 "use client";
 import { getAllGradesWithInformation } from "@/actions/admin/grade.actions";
-import Container from "@/components/ui/container";
 import {
   AssessmentType,
+  GradesWithInformationType,
   organizeGradesIntoSemesters,
   SemesterType,
   SubjectType,
   TeachingUnitType,
 } from "@/data/organize-grades";
 import { useCurrentStudent } from "@/hooks/use-current-user";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 const TeachingUnitComponent = ({
   teachingUnit,
@@ -83,19 +83,17 @@ const SemesterComponent = ({
 export const GradesComponent = () => {
   const student = useCurrentStudent();
   const studentNumber = student?.studentNumber || "";
+  const [studentGrades, setStudentGrades] = useState<
+    GradesWithInformationType[]
+  >([]);
 
-  const { data: studentGrades, isLoading } = useQuery({
-    queryKey: ["grades"],
-    queryFn: async () => await getAllGradesWithInformation(studentNumber),
-  });
-
-  if (isLoading) {
-    return <div>Chargement...</div>;
-  }
-
-  if (!studentGrades) {
-    return <h1>Pas de notes</h1>;
-  }
+  useEffect(() => {
+    const fetchGrades = async () => {
+      const grades = await getAllGradesWithInformation(studentNumber);
+      setStudentGrades(grades);
+    };
+    fetchGrades();
+  }, [studentNumber]);
 
   const organizedGrades = organizeGradesIntoSemesters(studentGrades);
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -7,7 +7,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
         "h-full flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400 to-blue-800"
       }
     >
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
     </div>
   );
 };

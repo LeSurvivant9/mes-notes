@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { startTransition, useEffect } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -11,22 +12,14 @@ import SubjectComponent from "@/components/admin/subject/subject";
 import AssessmentComponent from "@/components/admin/assessment/assessment";
 import GradePage from "@/components/admin/grade/grade";
 import StudentComponent from "@/components/admin/student/student";
-import { useQuery } from "@tanstack/react-query";
 import { fetchAllData } from "@/data/get-all-datas";
 
 const AdminComponent = () => {
-  const { isLoading, error } = useQuery({
-    queryKey: ["allData"],
-    queryFn: fetchAllData,
+  useEffect(() => {
+    startTransition(() => {
+      fetchAllData();
+    });
   });
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   return (
     <div className={"p-4 m-4 gap-y-4"}>

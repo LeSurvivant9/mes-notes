@@ -18,18 +18,16 @@ export const metadata: Metadata = {
     "Application créé par Alexandre, gestionnaire de notes pour les étudiants de l'INSA Hauts-de-France.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
   return (
     <html lang="fr">
       <body className={clsx(poppins.className, "w-full h-full break-words")}>
-        <Suspense fallback={<h1>Chargement...</h1>}>
-          <Providers>{children}</Providers>
-        </Suspense>
-
+        <SessionProvider session={session}>{children}</SessionProvider>
         <Toaster />
         <SpeedInsights />
         <Analytics />
