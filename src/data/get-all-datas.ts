@@ -14,24 +14,12 @@ import { useGradeStore } from "@/store/use-grade";
 import { useStudentStore } from "@/store/use-student";
 
 export async function fetchAllData() {
-  const [departments, teachingUnits, subjects, assessments, grades, students] =
-    await Promise.all([
-      getAllDepartments(),
-      getAllTeachingUnits(),
-      getAllSubjects(),
-      getAllAssessments(),
-      getAllGrades(),
-      getAllStudents(),
-    ]);
-
-  return {
-    departments,
-    teachingUnits,
-    subjects,
-    assessments,
-    grades,
-    students,
-  };
+  await fetchDepartments();
+  await fetchTeachingUnits();
+  await fetchSubjects();
+  await fetchAssessments();
+  await fetchGrades();
+  await fetchStudents();
 }
 
 export const fetchDepartments = async () => {

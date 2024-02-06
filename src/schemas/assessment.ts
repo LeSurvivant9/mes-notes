@@ -1,6 +1,11 @@
-import * as z from "zod"
-import { AssessmentType } from "@prisma/client"
-import { CompleteSubject, RelatedSubjectSchema, CompleteGrade, RelatedGradeSchema } from "./index"
+import * as z from "zod";
+import { AssessmentType } from "@prisma/client";
+import {
+  CompleteSubject,
+  RelatedSubjectSchema,
+  CompleteGrade,
+  RelatedGradeSchema,
+} from "./index";
 
 export const AssessmentSchema = z.object({
   id: z.string(),
@@ -10,11 +15,11 @@ export const AssessmentSchema = z.object({
   fileName: z.string(),
   period: z.number().int(),
   subjectId: z.string(),
-})
+});
 
 export interface CompleteAssessment extends z.infer<typeof AssessmentSchema> {
-  subject: CompleteSubject
-  grades: CompleteGrade[]
+  subject: CompleteSubject;
+  grades: CompleteGrade[];
 }
 
 /**
@@ -22,7 +27,10 @@ export interface CompleteAssessment extends z.infer<typeof AssessmentSchema> {
  *
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
-export const RelatedAssessmentSchema: z.ZodSchema<CompleteAssessment> = z.lazy(() => AssessmentSchema.extend({
-  subject: RelatedSubjectSchema,
-  grades: RelatedGradeSchema.array(),
-}))
+export const RelatedAssessmentSchema: z.ZodSchema<CompleteAssessment> = z.lazy(
+  () =>
+    AssessmentSchema.extend({
+      subject: RelatedSubjectSchema,
+      grades: RelatedGradeSchema.array(),
+    }),
+);

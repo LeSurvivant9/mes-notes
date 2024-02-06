@@ -1,5 +1,3 @@
-"use client";
-
 import Container from "@/components/ui/container";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/theme/ThemeProvider";

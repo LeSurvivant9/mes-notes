@@ -3,6 +3,7 @@ import { GradeSchema } from "@/schemas";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
 import PDFParser from "pdf2json";
+import { GradesWithInformationType } from "@/data/organize-grades";
 
 export const getAllGrades = async () => {
   return prisma.grade.findMany({
@@ -20,7 +21,7 @@ export const getGradeByKey = async (key: string, value: string) => {
   });
 };
 
-export const getAllGradesWithInformation = async (studentNumber: string) => {
+export async function getAllGradesWithInformation(studentNumber: string) {
   return prisma.grade.findMany({
     where: {
       studentNumber,
@@ -36,8 +37,9 @@ export const getAllGradesWithInformation = async (studentNumber: string) => {
         },
       },
     },
-  });
-};
+  }) as Promise<GradesWithInformationType[]>;
+}
+
 export const createGrade = async (data: z.infer<typeof GradeSchema>) => {
   try {
     const grade = await prisma.grade.create({

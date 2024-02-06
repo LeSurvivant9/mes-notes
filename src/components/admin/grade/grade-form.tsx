@@ -1,3 +1,4 @@
+"use client";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import SubmitButton from "@/components/submit-button";

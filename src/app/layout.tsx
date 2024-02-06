@@ -4,15 +4,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { clsx } from "clsx";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import React, { Suspense } from "react";
+import React from "react";
 import "./globals.css";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import Providers from "@/lib/query-provider";
-import { fetchAllData } from "@/data/get-all-datas";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["600"] });
 
@@ -24,13 +18,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="fr">
       <body className={clsx(poppins.className, "w-full h-full break-words")}>
-        <Providers>
-          <Suspense fallback={<div>Chargement...</div>}>{children}</Suspense>
-        </Providers>
+        <Providers>{children}</Providers>
         <Toaster />
         <SpeedInsights />
         <Analytics />

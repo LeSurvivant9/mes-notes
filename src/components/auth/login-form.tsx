@@ -29,8 +29,8 @@ export const LoginForm = () => {
       ? "Email already in use with different provider"
       : "";
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -45,8 +45,8 @@ export const LoginForm = () => {
     setSuccess("");
     startTransition(() => {
       login(values, callbackUrl).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
+        if (data.error) setError(data.error);
+        if (data.success) setSuccess(data.success);
       });
     });
   };
