@@ -5,6 +5,16 @@ import { z } from "zod";
 import PDFParser from "pdf2json";
 import { GradesWithInformationType } from "@/data/organize-grades";
 
+declare module "pdf2json" {
+  export default class Pdfparser {
+    on(event: string, listener: (...args: any[]) => void): void;
+
+    parseBuffer(buffer: Buffer): void;
+
+    getRawTextContent(): string;
+  }
+}
+
 export const getAllGrades = async () => {
   return prisma.grade.findMany({
     orderBy: {
@@ -127,16 +137,6 @@ type GradeType = {
   studentNumber: string;
   value: number;
 };
-
-declare module "pdf2json" {
-  export default class Pdfparser {
-    on(event: string, listener: (...args: any[]) => void): void;
-
-    parseBuffer(buffer: Buffer): void;
-
-    getRawTextContent(): string;
-  }
-}
 
 const extractTextFromPDFBuffer = async (
   fileBuffer: ArrayBuffer,

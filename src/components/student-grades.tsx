@@ -82,7 +82,7 @@ const SemesterComponent = ({
 
 export const GradesComponent = () => {
   const student = useCurrentStudent();
-  const studentNumber = student?.studentNumber || "";
+  const studentNumber = "22301872" || student?.studentNumber || "";
   const [studentGrades, setStudentGrades] = useState<
     GradesWithInformationType[]
   >([]);
