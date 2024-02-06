@@ -1,7 +1,7 @@
 "use server";
 
 import { del, put } from "@vercel/blob";
-import { extractGrades } from "@/actions/admin/grade.actions";
+import { extractGrades } from "@/actions/pdf.actions";
 import { updateUser } from "@/actions/auth/user.actions";
 
 export const uploadAvatar = async (formData: FormData) => {
