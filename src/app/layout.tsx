@@ -1,12 +1,14 @@
+import { auth } from "@/auth";
 import { Toaster } from "@/components/ui/sonner";
+import Providers from "@/lib/query-provider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { clsx } from "clsx";
 import type { Metadata } from "next";
+import { SessionProvider } from "next-auth/react";
 import { Poppins } from "next/font/google";
 import React, { Suspense } from "react";
 import "./globals.css";
-import Providers from "@/lib/query-provider";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["600"] });
 
@@ -27,6 +29,7 @@ export default function RootLayout({
         <Suspense fallback={<h1>Chargement...</h1>}>
           <Providers>{children}</Providers>
         </Suspense>
+
         <Toaster />
         <SpeedInsights />
         <Analytics />

@@ -14,7 +14,7 @@ export default async function AdminPage() {
 
   await queryClient.prefetchQuery({
     queryKey: ["allData"],
-    queryFn: fetchAllData,
+    queryFn: async () => fetchAllData(),
   });
 
   return (
