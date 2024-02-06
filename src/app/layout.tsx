@@ -4,7 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { clsx } from "clsx";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import React from "react";
+import React, { Suspense } from "react";
 import "./globals.css";
 import Providers from "@/lib/query-provider";
 
@@ -24,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={clsx(poppins.className, "w-full h-full break-words")}>
-        <Providers>{children}</Providers>
+        <Suspense fallback={<h1>Chargement...</h1>}>
+          <Providers>{children}</Providers>
+        </Suspense>
         <Toaster />
         <SpeedInsights />
         <Analytics />
