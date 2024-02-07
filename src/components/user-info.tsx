@@ -1,8 +1,9 @@
-import { ExtendedUser } from "@/next-auth";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { z } from "zod";
+import { UserSchema } from "@/schemas";
 
 interface UserInfoProps {
-  user?: ExtendedUser;
+  user?: z.infer<typeof UserSchema>;
   label: string;
 }
 

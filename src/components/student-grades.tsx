@@ -8,8 +8,22 @@ import {
   SubjectType,
   TeachingUnitType,
 } from "@/data/organize-grades";
-import { useCurrentStudent } from "@/hooks/use-current-user";
 import { useEffect, useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
 
 const TeachingUnitComponent = ({
   teachingUnit,
@@ -17,12 +31,16 @@ const TeachingUnitComponent = ({
   teachingUnit: TeachingUnitType;
 }) => {
   return (
-    <div className="teaching-unit">
+    <div>
       <h2>
         {teachingUnit.name} | Moyenne : {teachingUnit.average.toFixed(2)}
       </h2>
       {Object.values(teachingUnit.subjects).map((subject) => (
-        <SubjectComponent key={subject.id} subject={subject} />
+        <>
+          <Separator key={subject.id} />
+          <SubjectComponent key={subject.id} subject={subject} />
+          <Separator key={subject.id} />
+        </>
       ))}
     </div>
   );
@@ -30,13 +48,17 @@ const TeachingUnitComponent = ({
 
 const SubjectComponent = ({ subject }: { subject: SubjectType }) => {
   return (
-    <div className="subject">
+    <div className="ml-4 my-4">
       <h3>
-        {subject.name} | Coefficient : {subject.coefficient} | Moyenne :{" "}
+        ✧ {subject.name} | Coefficient : {subject.coefficient} | Moyenne :{" "}
         {subject.average.toFixed(2)}
       </h3>
       {subject.assessments.map((assessment) => (
-        <AssessmentComponent key={assessment.id} assessment={assessment} />
+        <ul key={assessment.id}>
+          <li key={assessment.id}>
+            <AssessmentComponent key={assessment.id} assessment={assessment} />
+          </li>
+        </ul>
       ))}
     </div>
   );
@@ -47,13 +69,21 @@ const AssessmentComponent = ({
 }: {
   assessment: AssessmentType;
 }) => {
+  const filename = assessment.fileName.split("/").pop();
   return (
-    <div className="assessment">
-      <p>
-        {assessment.fileName} | {assessment.type} | Note : {assessment.grade} |{" "}
-        {new Date(assessment.date).toLocaleDateString()} | Période :{" "}
-        {assessment.period} | Coefficient : {assessment.coefficient}
-      </p>
+    <div className="ml-4 my-2">
+      •{" "}
+      <Link
+        href={assessment.fileName}
+        target={"_blank"}
+        rel={"noonpener noreferrer"}
+        className={"hover:underline"}
+      >
+        {filename?.substring(0, 30)}.pdf
+      </Link>{" "}
+      | {assessment.type} | Note : {assessment.grade} |{" "}
+      {new Date(assessment.date).toLocaleDateString()} | Période :{" "}
+      {assessment.period}{" "}
     </div>
   );
 };
@@ -81,8 +111,10 @@ const SemesterComponent = ({
 };
 
 export const GradesComponent = () => {
-  const student = useCurrentStudent();
-  const studentNumber = "22301872" || student?.studentNumber || "";
+<<<<<<< HEAD
+=======
+  const [studentNumber, setStudentNumber] = useState("");
+>>>>>>> master
   const [studentGrades, setStudentGrades] = useState<
     GradesWithInformationType[]
   >([]);
@@ -96,16 +128,64 @@ export const GradesComponent = () => {
   }, [studentNumber]);
 
   const organizedGrades = organizeGradesIntoSemesters(studentGrades);
+  const searchStudent = ({ studentNumber }: { studentNumber: string }) =>
+    setStudentNumber(studentNumber);
 
+  const formSchema = z.object({
+    studentNumber: z.string().min(1, {
+      message: "Le numéro étudiant est obligatoire",
+    }),
+  });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { studentNumber: "" },
+  });
   return (
     <>
-      {Object.values(organizedGrades).map((semester, index) => (
-        <SemesterComponent
-          key={index}
-          semester={semester}
-          semesterNumber={index + 1}
-        />
-      ))}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(searchStudent)}
+          className="flex items-end"
+        >
+          <div className="flex flex-col flex-grow mr-4">
+            <FormLabel>Numéro étudiant</FormLabel>
+            <FormField
+              control={form.control}
+              name={"studentNumber"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type={"text"}
+                      name={"studentNumber"}
+                      value={field.value}
+                      className="mt-1"
+                    />
+                  </FormControl>
+                  <FormMessage className="h-0" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button type={"submit"} className="flex-shrink-0">
+            Chercher étudiant
+          </Button>
+        </form>
+      </Form>
+      <section className={"py-6"}>
+        {organizedGrades.length !== 0 ? (
+          Object.values(organizedGrades).map((semester, index) => (
+            <SemesterComponent
+              key={index}
+              semester={semester}
+              semesterNumber={index + 1}
+            />
+          ))
+        ) : (
+          <h1>Pas de notes pour cet étudiant</h1>
+        )}
+      </section>
     </>
   );
 };

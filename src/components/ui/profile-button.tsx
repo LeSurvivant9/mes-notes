@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaUser } from "react-icons/fa";
-import { LogoutButton } from "@/components/auth/logout-button";
-import { ImExit } from "react-icons/im";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
 import React from "react";
@@ -45,12 +43,6 @@ const ProfileButton = () => {
             Profil
           </Link>
         </DropdownMenuItem>
-        <LogoutButton>
-          <DropdownMenuItem className={"cursor-pointer"}>
-            <ImExit className={"h-4 w-4 mr-2"} />
-            Déconnexion
-          </DropdownMenuItem>
-        </LogoutButton>
       </DropdownMenuContent>
     </DropdownMenu>
   );

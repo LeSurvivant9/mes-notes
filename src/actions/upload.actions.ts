@@ -2,7 +2,9 @@
 
 import { del, put } from "@vercel/blob";
 import { extractGrades } from "@/actions/pdf.actions";
-import { updateUser } from "@/actions/auth/user.actions";
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 export const uploadAvatar = async (formData: FormData) => {
   const file = formData.get("file") as File;
@@ -26,6 +28,4 @@ export const uploadPdfFile = async (formData: FormData) => {
 
 export const deleteAvatar = async (userId: string, avatarUrl: string) => {
   await del(avatarUrl);
-
-  await updateUser(userId, { image: null });
 };
