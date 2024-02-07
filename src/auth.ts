@@ -1,13 +1,13 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { UserRole } from "@prisma/client";
-import authConfig from "@/auth.config";
-import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { StudentSchema } from "@/schemas";
 import { getUserByKey } from "@/actions/auth/user.actions";
 import { getStudentByKey } from "@/actions/admin/student.actions";
 import { getAccountByKey } from "@/actions/auth/account.actions";
+import authConfig from "@/auth.config";
+import prisma from "@/lib/prisma";
 
 export const {
   handlers: { GET, POST },
