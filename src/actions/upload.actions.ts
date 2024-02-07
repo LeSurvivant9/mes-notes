@@ -1,10 +1,7 @@
 "use server";
 
-import { del, put } from "@vercel/blob";
-import { extractGrades } from "@/actions/pdf.actions";
-<<<<<<< HEAD
-=======
->>>>>>> master
+import {del, put} from "@vercel/blob";
+import {extractGrades} from "@/actions/pdf.actions";
 
 export const uploadAvatar = async (formData: FormData) => {
   const file = formData.get("file") as File;
@@ -23,7 +20,7 @@ export const uploadPdfFile = async (formData: FormData) => {
     access: "public",
   });
 
-  return { url: blob.url, grades: gradesText };
+  return {url: blob.url, grades: gradesText};
 };
 
 export const deleteAvatar = async (userId: string, avatarUrl: string) => {
