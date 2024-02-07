@@ -62,7 +62,7 @@ const GradePreviewModal: React.FC<GradePreviewModalProps> = ({
         </Table>
         <DialogFooter className="sm:justify-start">
           <Button onClick={upload} className={"w-full"}>
-            Upload les étudiants
+            Upload les notes
           </Button>
           <Button
             onClick={onClose}

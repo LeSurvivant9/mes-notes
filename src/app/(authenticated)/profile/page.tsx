@@ -7,9 +7,7 @@ import SubmitButton from "@/components/submit-button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { deleteAvatar, uploadAvatar } from "@/actions/upload.actions";
-import { updateUser } from "@/actions/auth/user.actions";
 import { useUserStore } from "@/store/use-user";
-import { UserSchema } from "@/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LuTrash2 } from "react-icons/lu";
@@ -55,8 +53,6 @@ const ProfilePage = () => {
     }
     const url = await uploadAvatar(formData);
 
-    const response = await updateUser(user.id, { image: url });
-    setUser(response.user as z.infer<typeof UserSchema>);
     toast.success("Modifié", {
       description: "Avatar modifié avec succès.",
     });

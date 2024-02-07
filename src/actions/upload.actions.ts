@@ -1,8 +1,7 @@
 "use server";
 
 import { del, put } from "@vercel/blob";
-import { extractGrades } from "@/actions/admin/grade.actions";
-import { updateUser } from "@/actions/auth/user.actions";
+import { extractGrades } from "@/actions/pdf.actions";
 
 export const uploadAvatar = async (formData: FormData) => {
   const file = formData.get("file") as File;
@@ -26,6 +25,4 @@ export const uploadPdfFile = async (formData: FormData) => {
 
 export const deleteAvatar = async (userId: string, avatarUrl: string) => {
   await del(avatarUrl);
-
-  await updateUser(userId, { image: null });
 };
