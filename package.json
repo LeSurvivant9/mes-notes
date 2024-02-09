@@ -3,15 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-<<<<<<< HEAD
-=======
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
->>>>>>> master
     "@hookform/resolvers": "^3.3.4",
     "@prisma/client": "^5.9.1",
     "@prisma/extension-accelerate": "^0.6.3",
@@ -29,20 +26,14 @@
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tooltip": "^1.0.7",
-<<<<<<< HEAD
-=======
     "@vercel/analytics": "^1.1.3",
     "@vercel/blob": "^0.21.0",
->>>>>>> master
     "@vercel/speed-insights": "^1.0.9",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "embla-carousel-react": "8.0.0-rc22",
     "lucide-react": "^0.323.0",
     "next": "14.1.0",
-<<<<<<< HEAD
-=======
->>>>>>> master
     "next-themes": "^0.2.1",
     "nodemailer": "^6.9.9",
     "papaparse": "^5.4.1",
@@ -60,21 +51,18 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.16",
+    "@types/node": "^20.11.17",
     "@types/nodemailer": "^6.4.14",
     "@types/papaparse": "^5.3.14",
     "@types/pdf-parse": "^1.1.4",
     "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.18",
+    "@types/react-dom": "^18.2.19",
     "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
-<<<<<<< HEAD
-=======
     "eslint-config-next": "14.1.0",
-    "postcss": "^8.4.34",
+    "postcss": "^8.4.35",
     "prettier": "3.2.5",
->>>>>>> master
     "prisma": "^5.9.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"

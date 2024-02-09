@@ -111,10 +111,7 @@ const SemesterComponent = ({
 };
 
 export const GradesComponent = () => {
-<<<<<<< HEAD
-=======
   const [studentNumber, setStudentNumber] = useState("");
->>>>>>> master
   const [studentGrades, setStudentGrades] = useState<
     GradesWithInformationType[]
   >([]);
