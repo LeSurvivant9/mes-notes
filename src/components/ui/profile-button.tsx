@@ -13,6 +13,8 @@ import { FaUser } from "react-icons/fa";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
 import React from "react";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { ImExit } from "react-icons/im";
 import { useUserStore } from "@/store/use-user";
 
 const ProfileButton = () => {
@@ -43,6 +45,12 @@ const ProfileButton = () => {
             Profil
           </Link>
         </DropdownMenuItem>
+        <LogoutButton>
+          <DropdownMenuItem className={"cursor-pointer"}>
+            <ImExit className={"h-4 w-4 mr-2"} />
+            Déconnexion
+          </DropdownMenuItem>
+        </LogoutButton>
       </DropdownMenuContent>
     </DropdownMenu>
   );

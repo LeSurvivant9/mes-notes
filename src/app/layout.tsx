@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import React from "react";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["600"] });
 
@@ -21,12 +22,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
-      <body className={clsx(poppins.className, "w-full h-full break-words")}>
-        {children}
+    <html lang="fr" className={"h-full"}>
+      <body className={clsx(poppins.className, "w-full h-full")}>
         <Toaster />
         <SpeedInsights />
         <Analytics />
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );
