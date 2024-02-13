@@ -32,7 +32,7 @@ export const login = async (
   }
 
   try {
-    const result = await signIn("credentials", {
+    await signIn("credentials", {
       email: lowerCaseEmail,
       password,
       redirectTo: callbackUrl ?? DEFAULT_LOGIN_REDIRECT,

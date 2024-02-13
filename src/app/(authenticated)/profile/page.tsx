@@ -13,9 +13,13 @@ import { Input } from "@/components/ui/input";
 import { LuTrash2 } from "react-icons/lu";
 import { FaRegPaperPlane } from "react-icons/fa";
 import { toast } from "sonner";
+import { updateUser } from "@/actions/auth/user.actions";
 
 const ProfilePage = () => {
-  const { user, setUser } = useUserStore();
+  const { user, setUser } = useUserStore((state) => ({
+    user: state.user,
+    setUser: state.setUser,
+  }));
   const formSchema = z.object({
     file: z.any(),
   });
@@ -27,6 +31,7 @@ const ProfilePage = () => {
     if (!user) return;
 
     await deleteAvatar(user.id, user.image as string);
+    await updateUser(user.id, { image: null });
     setUser({ ...user, image: null });
     toast.success("Supprimé", {
       description: "Avatar supprimé avec succès.",
@@ -52,7 +57,8 @@ const ProfilePage = () => {
       await deleteAvatar(user.id, user.image);
     }
     const url = await uploadAvatar(formData);
-
+    await updateUser(user.id, { image: url });
+    setUser({ ...user, image: url });
     toast.success("Modifié", {
       description: "Avatar modifié avec succès.",
     });
@@ -69,6 +75,9 @@ const ProfilePage = () => {
           <CardHeader className={"p-0"}>Profil</CardHeader>
           <CardContent>
             <span>Nom {user?.name}</span>
+          </CardContent>
+          <CardContent>
+            <span>{JSON.stringify(user)}</span>
           </CardContent>
         </Card>
         <h1>Téléverse ton avatar</h1>

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { useDepartmentStore } from "@/store/use-department";
 import { deleteDepartment } from "@/actions/admin/department.actions";
-import { fetchDepartments } from "@/data/get-all-datas";
+import { fetchAllData } from "@/data/get-all-datas";
 import DepartmentForm from "@/components/admin/department/department-form";
 
 const DepartmentComponent = () => {
@@ -57,7 +57,7 @@ const DepartmentComponent = () => {
                 <Button
                   onClick={async () => {
                     await deleteDepartment(department.id as string);
-                    await fetchDepartments();
+                    await fetchAllData();
                   }}
                 >
                   Supprimer

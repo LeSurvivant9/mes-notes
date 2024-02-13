@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { AssessmentSchema } from "@/schemas";
 import prisma from "@/lib/prisma";
+import { del } from "@vercel/blob";
 
 export const getAllAssessments = async () => {
   return prisma.assessment.findMany({
@@ -66,6 +67,7 @@ export const deleteAssessment = async (id: string) => {
     const assessment = await prisma.assessment.delete({
       where: { id },
     });
+    await del(assessment.fileName);
 
     return {
       success: `"${assessment.fileName}" a été supprimé avec succès`,

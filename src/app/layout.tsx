@@ -7,6 +7,7 @@ import { Poppins } from "next/font/google";
 import React from "react";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["600"] });
 
@@ -21,14 +22,17 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
   return (
-    <html lang="fr" className={"h-full"}>
-      <body className={clsx(poppins.className, "w-full h-full")}>
-        <Toaster />
-        <SpeedInsights />
-        <Analytics />
-        <SessionProvider>{children}</SessionProvider>
-      </body>
-    </html>
+    <SessionProvider session={session}>
+      <html lang="fr" className={"h-full"}>
+        <body className={clsx(poppins.className, "w-full h-full")}>
+          <Toaster />
+          <SpeedInsights />
+          <Analytics />
+          {children}
+        </body>
+      </html>
+    </SessionProvider>
   );
 }

@@ -12,13 +12,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
-import React from "react";
+import React, { useEffect } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ImExit } from "react-icons/im";
 import { useUserStore } from "@/store/use-user";
+import { useSession } from "next-auth/react";
+import { z } from "zod";
+import { UserSchema } from "@/schemas";
 
 const ProfileButton = () => {
-  const { user } = useUserStore();
+  const { data: session } = useSession();
+  const { user, setUser } = useUserStore((state) => ({
+    user: state.user,
+    setUser: state.setUser,
+  }));
+
+  useEffect(() => {
+    if (session?.user) {
+      setUser(session.user as z.infer<typeof UserSchema>);
+    }
+  }, [user, session, setUser]);
 
   const diceBearAvatarUrl = `https://api.dicebear.com/7.x/big-smile/svg?seed=${user?.email}`;
 

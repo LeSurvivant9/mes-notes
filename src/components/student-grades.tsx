@@ -8,22 +8,14 @@ import {
   SubjectType,
   TeachingUnitType,
 } from "@/data/organize-grades";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { getAccountByKey } from "@/actions/auth/account.actions";
+import { useUserStore } from "@/store/use-user";
 
 const TeachingUnitComponent = ({
   teachingUnit,
@@ -111,78 +103,46 @@ const SemesterComponent = ({
 };
 
 export const GradesComponent = () => {
-  const [studentNumber, setStudentNumber] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const { user } = useUserStore();
   const [studentGrades, setStudentGrades] = useState<
     GradesWithInformationType[]
   >([]);
 
   useEffect(() => {
     const fetchGrades = async () => {
-      const grades = await getAllGradesWithInformation(studentNumber);
+      const student = await getAccountByKey("userId", user?.id as string);
+      const grades = await getAllGradesWithInformation(
+        student?.studentNumber as string,
+      );
       setStudentGrades(grades);
     };
-    fetchGrades();
-  }, [studentNumber]);
+    startTransition(() => fetchGrades());
+  }, [user]);
 
   const organizedGrades = organizeGradesIntoSemesters(studentGrades);
-  const searchStudent = ({ studentNumber }: { studentNumber: string }) =>
-    setStudentNumber(studentNumber);
 
-  const formSchema = z.object({
-    studentNumber: z.string().min(1, {
-      message: "Le numéro étudiant est obligatoire",
-    }),
-  });
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { studentNumber: "" },
-  });
+  if (isPending) {
+    return (
+      <p className={"w-full h-full items-center top-1/2 left-1/2"}>
+        Chargement...
+      </p>
+    );
+  }
+
   return (
     <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(searchStudent)}
-          className="flex items-end"
-        >
-          <div className="flex flex-col flex-grow mr-4">
-            <FormLabel>Numéro étudiant</FormLabel>
-            <FormField
-              control={form.control}
-              name={"studentNumber"}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type={"text"}
-                      name={"studentNumber"}
-                      value={field.value}
-                      className="mt-1"
-                    />
-                  </FormControl>
-                  <FormMessage className="h-0" />
-                </FormItem>
-              )}
-            />
-          </div>
-          <Button type={"submit"} className="flex-shrink-0">
-            Chercher étudiant
-          </Button>
-        </form>
-      </Form>
-      <section className={"py-6"}>
-        {organizedGrades.length !== 0 ? (
-          Object.values(organizedGrades).map((semester, index) => (
-            <SemesterComponent
-              key={index}
-              semester={semester}
-              semesterNumber={index + 1}
-            />
-          ))
-        ) : (
-          <h1>Pas de notes pour cet étudiant</h1>
-        )}
-      </section>
+      {organizedGrades.length !== 0 ? (
+        Object.values(organizedGrades).map((semester, index) => (
+          <SemesterComponent
+            key={index}
+            semester={semester}
+            semesterNumber={index + 1}
+          />
+        ))
+      ) : (
+        <p>Il n'y aucune note pour le moment.</p>
+      )}
     </>
   );
 };
