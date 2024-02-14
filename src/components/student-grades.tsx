@@ -9,9 +9,6 @@ import {
   TeachingUnitType,
 } from "@/data/organize-grades";
 import { useEffect, useState, useTransition } from "react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { getAccountByKey } from "@/actions/auth/account.actions";
@@ -75,7 +72,7 @@ const AssessmentComponent = ({
       </Link>{" "}
       | {assessment.type} | Note : {assessment.grade} |{" "}
       {new Date(assessment.date).toLocaleDateString()} | Période :{" "}
-      {assessment.period}{" "}
+      {assessment.period} | Coefficient : {assessment.coefficient}
     </div>
   );
 };

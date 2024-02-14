@@ -14,9 +14,9 @@ import { v4 as uuidv4 } from "uuid";
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   try {
     const { lastName, firstName, studentNumber, email, password } = values;
-    const lowerCaseEmail = email.toLowerCase();
-    const normalizedLastName = toUpperCase(removeAccents(lastName));
-    const normalizedFirstName = capitalize(removeAccents(firstName));
+    const lowerCaseEmail = email.toLowerCase().trim();
+    const normalizedLastName = toUpperCase(removeAccents(lastName.trim()));
+    const normalizedFirstName = capitalize(removeAccents(firstName.trim()));
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [existingUser, existingStudent] = await Promise.all([
@@ -27,10 +27,17 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     if (existingUser) {
       return { error: "Adresse email déjà utilisée" };
     }
+
+    const normalizedExistingLastName = toUpperCase(
+      removeAccents(existingStudent?.lastName as string).trim(),
+    );
+    const normalizedExistingFirstName = capitalize(
+      removeAccents(existingStudent?.firstName as string).trim(),
+    );
     if (
       !existingStudent ||
-      existingStudent.lastName !== normalizedLastName ||
-      existingStudent.firstName !== normalizedFirstName
+      normalizedExistingLastName !== normalizedLastName ||
+      normalizedExistingFirstName !== normalizedFirstName
     ) {
       return { error: "Informations incorrectes, veuillez réessayer" };
     }
