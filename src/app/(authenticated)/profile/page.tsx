@@ -1,25 +1,34 @@
 "use client";
-import React, { FormEventHandler } from "react";
+import React, { FormEventHandler, useEffect, useState } from "react";
 import Container from "@/components/ui/container";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
-import SubmitButton from "@/components/submit-button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { deleteAvatar, uploadAvatar } from "@/actions/upload.actions";
 import { useUserStore } from "@/store/use-user";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { LuTrash2 } from "react-icons/lu";
-import { FaRegPaperPlane } from "react-icons/fa";
 import { toast } from "sonner";
 import { updateUser } from "@/actions/auth/user.actions";
+import { getAccountByKey } from "@/actions/auth/account.actions";
 
 const ProfilePage = () => {
   const { user, setUser } = useUserStore((state) => ({
     user: state.user,
     setUser: state.setUser,
   }));
+  const [studentNumber, setStudentNumber] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStudent = async () => {
+      const student = await getAccountByKey("userId", user?.id as string);
+      if (student) {
+        setStudentNumber(student?.studentNumber);
+      }
+    };
+
+    fetchStudent();
+  }, [user?.id]);
+
   const formSchema = z.object({
     file: z.any(),
   });
@@ -74,35 +83,38 @@ const ProfilePage = () => {
         >
           <CardHeader className={"p-0"}>Profil</CardHeader>
           <CardContent>
-            <span>Nom {user?.name}</span>
+            <span>Nom : {user?.name}</span>
           </CardContent>
           <CardContent>
-            <span>{JSON.stringify(user)}</span>
+            <span>Email : {user?.email}</span>
+          </CardContent>
+          <CardContent>
+            <span>Numéro étudiant : {studentNumber}</span>
           </CardContent>
         </Card>
-        <h1>Téléverse ton avatar</h1>
-        <div className={"flex flex-row items-center space-x-4"}>
-          <form
-            onSubmit={handleSubmit}
-            className={"flex flex-row items-center space-x-4 flex-grow"}
-          >
-            <div className="flex-grow">
-              <Input type={"file"} name={"file"} className={"w-full"} />
-            </div>
-            <SubmitButton childrenProps={"gap-x-2"}>
-              <FaRegPaperPlane />
-              Envoyer
-            </SubmitButton>
-          </form>
-          <Button
-            className={"gap-x-2"}
-            variant={"destructive"}
-            onClick={handleDeleteAvatar}
-          >
-            <LuTrash2 />
-            Avatar actuel
-          </Button>
-        </div>
+        {/*<h1>Téléverse ton avatar</h1>*/}
+        {/*<div className={"flex flex-row items-center space-x-4"}>*/}
+        {/*  <form*/}
+        {/*    onSubmit={handleSubmit}*/}
+        {/*    className={"flex flex-row items-center space-x-4 flex-grow"}*/}
+        {/*  >*/}
+        {/*    <div className="flex-grow">*/}
+        {/*      <Input type={"file"} name={"file"} className={"w-full"} />*/}
+        {/*    </div>*/}
+        {/*    <SubmitButton childrenProps={"gap-x-2"}>*/}
+        {/*      <FaRegPaperPlane />*/}
+        {/*      Envoyer*/}
+        {/*    </SubmitButton>*/}
+        {/*  </form>*/}
+        {/*  <Button*/}
+        {/*    className={"gap-x-2"}*/}
+        {/*    variant={"destructive"}*/}
+        {/*    onClick={handleDeleteAvatar}*/}
+        {/*  >*/}
+        {/*    <LuTrash2 />*/}
+        {/*    Avatar actuel*/}
+        {/*  </Button>*/}
+        {/*</div>*/}
       </div>
     </Container>
   );
