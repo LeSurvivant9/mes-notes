@@ -90,13 +90,13 @@ export const organizeGradesIntoSemesters = (
       ...grade.assessment,
       grade: grade.value,
     });
-    subjectEntry.totalGrade += grade.value * grade.assessment.coefficient;
-    subjectEntry.totalCoefficient += grade.assessment.coefficient;
+    subjectEntry.totalGrade += grade.value;
+    subjectEntry.totalCoefficient += 1;
   });
 
   semesters.forEach((semester) => {
     let semesterTotalGrade = 0;
-    let semesterTotalCoefficient = 0;
+    let numberOfTeachingUnits = 0;
 
     Object.values(semester.teachingUnits).forEach((tUnit) => {
       let tUnitTotalGrade = 0;
@@ -115,12 +115,12 @@ export const organizeGradesIntoSemesters = (
         tUnit.totalCoefficient = tUnitTotalCoefficient;
         tUnit.totalGrade = tUnitTotalGrade;
       }
-      semesterTotalGrade += tUnit.average * tUnit.totalCoefficient;
-      semesterTotalCoefficient += tUnit.totalCoefficient;
+      semesterTotalGrade += tUnit.average;
+      numberOfTeachingUnits += 1;
     });
 
-    if (semesterTotalCoefficient > 0) {
-      semester.average = semesterTotalGrade / semesterTotalCoefficient;
+    if (numberOfTeachingUnits > 0) {
+      semester.average = semesterTotalGrade / numberOfTeachingUnits;
     }
   });
 
