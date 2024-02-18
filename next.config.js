@@ -1,4 +1,7 @@
 const nextConfig = {
+  images: {
+    domains: ["github.com"],
+  },
   experimental: {
     serverComponentsExternalPackages: ["pdf2json"],
   },

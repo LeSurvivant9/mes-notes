@@ -1,14 +1,13 @@
 import React from "react";
+import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div
-      className={
-        "h-full flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400 to-blue-800"
-      }
-    >
-      {children}
-    </div>
+    <BackgroundGradientAnimation>
+      <div className="absolute z-50 pointer-events-none inset-0 flex items-center justify-center text-xl text-center">
+        {children}
+      </div>
+    </BackgroundGradientAnimation>
   );
 };
 

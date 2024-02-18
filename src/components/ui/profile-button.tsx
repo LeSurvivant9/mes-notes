@@ -39,7 +39,7 @@ const ProfileButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <span className={"flex flex-row items-center gap-x-2"}>
+        <span className={"flex flex-row items-center"}>
           <Avatar>
             <AvatarImage src={finalImage} />
             <AvatarFallback>
