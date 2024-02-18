@@ -5,20 +5,15 @@ import {
 } from "@/actions/admin/grade.actions";
 import {
   AssessmentType,
-  GradesWithInformationType,
   organizeGradesIntoSemesters,
   SemesterType,
   SubjectType,
   TeachingUnitType,
 } from "@/data/organize-grades";
-import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
-import { getAccountByKey } from "@/actions/auth/account.actions";
-import { useUserStore } from "@/store/use-user";
 import { v4 as uuidv4 } from "uuid";
-import { z } from "zod";
-import { GradeSchema } from "@/schemas";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TeachingUnitComponent = ({
   teachingUnit,
@@ -31,11 +26,7 @@ const TeachingUnitComponent = ({
         {teachingUnit.name} | Moyenne : {teachingUnit.average.toFixed(3)}
       </h2>
       {Object.values(teachingUnit.subjects).map((subject) => (
-        <>
-          {/*<Separator key={uuidv4()} />*/}
-          <SubjectComponent key={uuidv4()} subject={subject} />
-          {/*<Separator key={uuidv4()} />*/}
-        </>
+        <SubjectComponent key={uuidv4()} subject={subject} />
       ))}
     </div>
   );
@@ -67,15 +58,14 @@ const AssessmentComponent = ({
 }: {
   assessment: AssessmentType;
 }) => {
-  const [grades, setGrades] = useState<z.infer<typeof GradeSchema>[]>([]);
-  useEffect(() => {
-    const fetchGrades = async () => {
-      const grades = await getGradeByKey("assessmentId", assessment.id);
-      setGrades(grades);
-    };
+  const { data: grades } = useQuery({
+    queryKey: ["grades", "assessmentId", assessment.id],
+    queryFn: async () => await getGradeByKey("assessmentId", assessment.id),
+  });
+  if (!grades) {
+    return <Skeleton className="my-1 h-6 w-full bg-slate-300" />;
+  }
 
-    fetchGrades();
-  }, [assessment.id]);
   const filename = assessment.fileName.split("/").pop();
   const gradeValues = grades.map((grade) => grade.value);
   // Calculer la moyenne
@@ -130,34 +120,27 @@ const SemesterComponent = ({
   );
 };
 
-export const GradesComponent = () => {
-  const [isPending, startTransition] = useTransition();
-  const { user } = useUserStore();
-  const [studentGrades, setStudentGrades] = useState<
-    GradesWithInformationType[]
-  >([]);
+export default function GradesComponent({
+  studentNumber,
+}: {
+  studentNumber: string;
+}) {
+  const { data: studentGrades, isLoading } = useQuery({
+    queryKey: ["grades"],
+    queryFn: async () => await getAllGradesWithInformation(studentNumber),
+  });
 
-  useEffect(() => {
-    const fetchGrades = async () => {
-      const student = await getAccountByKey("userId", user?.id as string);
-      const grades = await getAllGradesWithInformation(
-        student?.studentNumber as string,
-      );
-      setStudentGrades(grades);
-    };
-    startTransition(() => fetchGrades());
-  }, [user]);
-
-  const organizedGrades = organizeGradesIntoSemesters(studentGrades);
-
-  if (isPending) {
+  if (isLoading) {
     return (
       <p className={"w-full h-full items-center top-1/2 left-1/2"}>
         Chargement...
       </p>
     );
   }
-
+  if (!studentGrades) {
+    return <p>Il n'y aucune note pour le moment.</p>;
+  }
+  const organizedGrades = organizeGradesIntoSemesters(studentGrades);
   return (
     <>
       {organizedGrades.length !== 0 ? (
@@ -173,4 +156,4 @@ export const GradesComponent = () => {
       )}
     </>
   );
-};
+}
