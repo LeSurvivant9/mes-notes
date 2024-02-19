@@ -15,7 +15,8 @@ export default async function GradesPage() {
     queryKey: ["grades"],
     queryFn: async () =>
       await getAllGradesWithInformation(
-        session?.student.studentNumber as string,
+        // session?.student.studentNumber as string,
+        "22301872",
       ),
   });
 

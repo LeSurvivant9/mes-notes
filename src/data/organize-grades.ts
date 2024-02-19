@@ -44,10 +44,11 @@ export const organizeGradesIntoSemesters = (
   grades: GradesWithInformationType[],
 ) => {
   const semesters: SemesterType[] = [];
-
   grades.forEach((grade) => {
     const teachingUnit = grade.assessment.subject.teachingUnit;
     const semester = teachingUnit.semester - 1;
+    const subject = grade.assessment.subject;
+    const assessment = grade.assessment;
 
     if (!semesters[semester]) {
       semesters[semester] = {
@@ -68,8 +69,6 @@ export const organizeGradesIntoSemesters = (
       };
     }
 
-    const subject = grade.assessment.subject;
-
     if (
       !semesters[semester].teachingUnits[teachingUnit.id].subjects[subject.id]
     ) {
@@ -80,32 +79,54 @@ export const organizeGradesIntoSemesters = (
           subjectCoefficient: subject.coefficient,
           totalCoefficient: 0,
           totalGrade: 0,
-          assessments: [],
+          assessments: {},
         };
     }
 
     const subjectEntry =
       semesters[semester].teachingUnits[teachingUnit.id].subjects[subject.id];
-    subjectEntry.assessments.push({
-      ...grade.assessment,
-      grade: grade.value,
-    });
-    subjectEntry.totalGrade += grade.value;
-    subjectEntry.totalCoefficient += 1;
+
+    if (!subjectEntry.assessments[assessment.id]) {
+      subjectEntry.assessments[assessment.id] = {
+        ...assessment,
+        totalGrade: 0,
+        totalCoefficient: 0,
+        grades: [],
+      };
+    }
+
+    subjectEntry.assessments[assessment.id].grades.push(grade.value);
+    subjectEntry.assessments[assessment.id].totalGrade += grade.value;
+    subjectEntry.assessments[assessment.id].totalCoefficient += 1;
   });
 
   semesters.forEach((semester) => {
     let semesterTotalGrade = 0;
-    let numberOfTeachingUnits = 0;
+    let semesterTotalCoefficient = 0;
 
     Object.values(semester.teachingUnits).forEach((tUnit) => {
       let tUnitTotalGrade = 0;
       let tUnitTotalCoefficient = 0;
 
       Object.values(tUnit.subjects).forEach((subject) => {
-        if (subject.totalCoefficient > 0) {
-          subject.average = subject.totalGrade / subject.totalCoefficient;
+        let subjectTotalGrade = 0;
+        let subjectTotalCoefficient = 0;
+
+        Object.values(subject.assessments).forEach((assessment) => {
+          if (assessment.totalCoefficient > 0) {
+            const average = assessment.totalGrade / assessment.totalCoefficient;
+            const finalGrade = average * subject.subjectCoefficient;
+            subjectTotalGrade += finalGrade;
+            subjectTotalCoefficient += subject.subjectCoefficient;
+          }
+        });
+
+        if (subjectTotalCoefficient > 0) {
+          subject.average = subjectTotalGrade / subjectTotalCoefficient;
+          subject.totalCoefficient = subjectTotalCoefficient;
+          subject.totalGrade = subjectTotalGrade;
         }
+
         tUnitTotalGrade += subject.average * subject.subjectCoefficient;
         tUnitTotalCoefficient += subject.subjectCoefficient;
       });
@@ -115,12 +136,13 @@ export const organizeGradesIntoSemesters = (
         tUnit.totalCoefficient = tUnitTotalCoefficient;
         tUnit.totalGrade = tUnitTotalGrade;
       }
+
       semesterTotalGrade += tUnit.average;
-      numberOfTeachingUnits += 1;
+      semesterTotalCoefficient += 1;
     });
 
-    if (numberOfTeachingUnits > 0) {
-      semester.average = semesterTotalGrade / numberOfTeachingUnits;
+    if (semesterTotalCoefficient > 0) {
+      semester.average = semesterTotalGrade / semesterTotalCoefficient;
     }
   });
 

@@ -42,13 +42,14 @@ const SubjectComponent = ({ subject }: { subject: SubjectType }) => {
         {subject.examCoefficient && `; EXAM ${subject.examCoefficient} `}
         {subject.tpCoefficient && `; TP ${subject.tpCoefficient}`}
       </h3>
-      {subject.assessments.map((assessment) => (
-        <ul key={uuidv4()}>
-          <li key={uuidv4()}>
-            <AssessmentComponent key={uuidv4()} assessment={assessment} />
-          </li>
-        </ul>
-      ))}
+      {JSON.stringify(subject.assessments)}
+      {/*{Object.entries(subject.assessments).map(([type, assessment]) => (*/}
+      {/*  <ul key={uuidv4()}>*/}
+      {/*    <li key={uuidv4()}>*/}
+      {/*      <AssessmentComponent key={uuidv4()} assessment={assessment} />*/}
+      {/*    </li>*/}
+      {/*  </ul>*/}
+      {/*))}*/}
     </div>
   );
 };
@@ -84,7 +85,6 @@ const AssessmentComponent = ({
   const lowestGrade = Math.min(...gradeValues);
   return (
     <div className="ml-4 my-2">
-      •{" "}
       <Link
         href={assessment.fileName}
         target={"_blank"}
@@ -93,7 +93,7 @@ const AssessmentComponent = ({
       >
         {filename?.substring(0, 30)}.pdf
       </Link>{" "}
-      | {assessment.type} | Note : {assessment.grade} |{" "}
+      | {assessment.type} | Note : {assessment.grades} |{" "}
       {new Date(assessment.date).toLocaleDateString()} | Période :{" "}
       {assessment.period} | Moyenne : {average.toFixed(2)} | Médiane :{" "}
       {median.toFixed(2)} | Max : {highestGrade} | Min : {lowestGrade}
@@ -127,7 +127,7 @@ export default function GradesComponent({
 }) {
   const { data: studentGrades, isLoading } = useQuery({
     queryKey: ["grades"],
-    queryFn: async () => await getAllGradesWithInformation(studentNumber),
+    queryFn: async () => await getAllGradesWithInformation("22301872"),
   });
 
   if (isLoading) {
@@ -141,6 +141,7 @@ export default function GradesComponent({
     return <p>Il n'y aucune note pour le moment.</p>;
   }
   const organizedGrades = organizeGradesIntoSemesters(studentGrades);
+
   return (
     <>
       {organizedGrades.length !== 0 ? (
