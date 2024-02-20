@@ -1,36 +1,10 @@
+import { z } from "zod";
 import {
   AssessmentSchema,
   GradeSchema,
   SubjectSchema,
   TeachingUnitSchema,
 } from "@/schemas";
-import { z } from "zod";
-
-export type AssessmentType = z.infer<typeof AssessmentSchema> & {
-  grade: number;
-};
-
-export type SubjectType = z.infer<typeof SubjectSchema> & {
-  average: number;
-  subjectCoefficient: number;
-  totalCoefficient: number;
-  totalGrade: number;
-  assessments: AssessmentType[];
-};
-
-export type TeachingUnitType = z.infer<typeof TeachingUnitSchema> & {
-  average: number;
-  totalCoefficient: number;
-  totalGrade: number;
-  subjects: { [subjectId: string]: SubjectType };
-};
-
-export type SemesterType = {
-  average: number;
-  totalCoefficient: number;
-  totalGrade: number;
-  teachingUnits: { [teachingUnitId: string]: TeachingUnitType };
-};
 
 export type GradesWithInformationType = z.infer<typeof GradeSchema> & {
   assessment: z.infer<typeof AssessmentSchema> & {
@@ -40,111 +14,139 @@ export type GradesWithInformationType = z.infer<typeof GradeSchema> & {
   };
 };
 
-export const organizeGradesIntoSemesters = (
-  grades: GradesWithInformationType[],
-) => {
-  const semesters: SemesterType[] = [];
-  grades.forEach((grade) => {
-    const teachingUnit = grade.assessment.subject.teachingUnit;
-    const semester = teachingUnit.semester - 1;
-    const subject = grade.assessment.subject;
-    const assessment = grade.assessment;
-
-    if (!semesters[semester]) {
-      semesters[semester] = {
-        average: 0,
-        totalCoefficient: 0,
-        totalGrade: 0,
-        teachingUnits: {},
-      };
+type AssessmentOrAverage =
+  | {
+      type: "assessment";
+      data: GradesWithInformationType[];
     }
+  | {
+      type: "average";
+      data: number;
+    };
 
-    if (!semesters[semester].teachingUnits[teachingUnit.id]) {
-      semesters[semester].teachingUnits[teachingUnit.id] = {
-        ...teachingUnit,
-        average: 0,
-        totalCoefficient: 0,
-        totalGrade: 0,
-        subjects: {},
-      };
-    }
+type SubjectDetails = {
+  [key: string]: AssessmentOrAverage | undefined;
+};
 
-    if (
-      !semesters[semester].teachingUnits[teachingUnit.id].subjects[subject.id]
-    ) {
-      semesters[semester].teachingUnits[teachingUnit.id].subjects[subject.id] =
-        {
-          ...subject,
-          average: 0,
-          subjectCoefficient: subject.coefficient,
-          totalCoefficient: 0,
-          totalGrade: 0,
-          assessments: {},
-        };
-    }
+type UnitDetails = {
+  [key: string]: SubjectDetails | undefined;
+};
 
-    const subjectEntry =
-      semesters[semester].teachingUnits[teachingUnit.id].subjects[subject.id];
+type SemesterDetails = {
+  [key: string]: UnitDetails | undefined;
+};
 
-    if (!subjectEntry.assessments[assessment.id]) {
-      subjectEntry.assessments[assessment.id] = {
-        ...assessment,
-        totalGrade: 0,
-        totalCoefficient: 0,
-        grades: [],
-      };
-    }
+type OrganizedDataWithAverages = {
+  [semester: number]: SemesterDetails | undefined;
+};
 
-    subjectEntry.assessments[assessment.id].grades.push(grade.value);
-    subjectEntry.assessments[assessment.id].totalGrade += grade.value;
-    subjectEntry.assessments[assessment.id].totalCoefficient += 1;
-  });
+type OrganizedData = any;
 
-  semesters.forEach((semester) => {
-    let semesterTotalGrade = 0;
-    let semesterTotalCoefficient = 0;
+export function organizeData(grades: any): any {
+  return grades.reduce((acc: any, grade: any) => {
+    const semester = grade.assessment.subject.teachingUnit.semester as number;
+    const unitName = grade.assessment.subject.teachingUnit.name;
+    const subjectName = grade.assessment.subject.name;
+    const assessmentType = grade.assessment.type;
 
-    Object.values(semester.teachingUnits).forEach((tUnit) => {
-      let tUnitTotalGrade = 0;
-      let tUnitTotalCoefficient = 0;
+    acc[semester] = acc[semester] || {};
+    acc[semester][unitName] = acc[semester][unitName] || {};
+    acc[semester][unitName][subjectName] =
+      acc[semester][unitName][subjectName] || {};
+    acc[semester][unitName][subjectName][assessmentType] =
+      acc[semester][unitName][subjectName][assessmentType] || [];
 
-      Object.values(tUnit.subjects).forEach((subject) => {
-        let subjectTotalGrade = 0;
-        let subjectTotalCoefficient = 0;
+    acc[semester][unitName][subjectName][assessmentType].push(grade);
 
-        Object.values(subject.assessments).forEach((assessment) => {
-          if (assessment.totalCoefficient > 0) {
-            const average = assessment.totalGrade / assessment.totalCoefficient;
-            const finalGrade = average * subject.subjectCoefficient;
-            subjectTotalGrade += finalGrade;
-            subjectTotalCoefficient += subject.subjectCoefficient;
-          }
-        });
+    return acc;
+  }, {} as OrganizedData);
+}
 
-        if (subjectTotalCoefficient > 0) {
-          subject.average = subjectTotalGrade / subjectTotalCoefficient;
-          subject.totalCoefficient = subjectTotalCoefficient;
-          subject.totalGrade = subjectTotalGrade;
-        }
+type SubjectCoefficients = {
+  examCoefficient?: number;
+  ccCoefficient?: number;
+  tpCoefficient?: number;
+  [key: string]: number | undefined;
+};
 
-        tUnitTotalGrade += subject.average * subject.subjectCoefficient;
-        tUnitTotalCoefficient += subject.subjectCoefficient;
-      });
+type GradeWithAverage = GradesWithInformationType & { average?: number };
 
-      if (tUnitTotalCoefficient > 0) {
-        tUnit.average = tUnitTotalGrade / tUnitTotalCoefficient;
-        tUnit.totalCoefficient = tUnitTotalCoefficient;
-        tUnit.totalGrade = tUnitTotalGrade;
+export function calculateAverages(
+  data: OrganizedData,
+): OrganizedDataWithAverages {
+  const calculateWeightedAverage = (
+    gradesByType: Record<string, GradeWithAverage[]>,
+    subjectCoefficients: SubjectCoefficients,
+  ): number => {
+    let totalWeightedAverage = 0;
+    let totalCoefficient = 0;
+
+    Object.keys(gradesByType).forEach((type) => {
+      const grades = gradesByType[type];
+      if (grades.length === 0) return;
+
+      const average =
+        grades.reduce((sum, grade) => sum + grade.value, 0) / grades.length;
+      const coefficient =
+        subjectCoefficients[`${type.toLowerCase()}Coefficient`];
+
+      if (coefficient && coefficient > 0) {
+        totalWeightedAverage += average * coefficient;
+        totalCoefficient += coefficient;
       }
-
-      semesterTotalGrade += tUnit.average;
-      semesterTotalCoefficient += 1;
     });
 
-    if (semesterTotalCoefficient > 0) {
-      semester.average = semesterTotalGrade / semesterTotalCoefficient;
-    }
+    return totalCoefficient > 0 ? totalWeightedAverage / totalCoefficient : 0;
+  };
+
+  Object.keys(data).forEach((semester: any) => {
+    let semesterTotalAverage = 0;
+    let numberOfUnits = 0;
+
+    Object.keys(data[semester]).forEach((unit) => {
+      let unitTotalAverage = 0;
+      let numberOfSubjects = 0;
+
+      Object.keys(data[semester][unit]).forEach((subject) => {
+        // Exclude 'average' property
+        if (subject === "average") return;
+
+        // Récupère les coefficients pour le sujet actuel
+        const subjectCoefficients = {
+          examCoefficient:
+            data[semester][unit][subject].EXAM?.[0]?.assessment.subject
+              .examCoefficient || 0,
+          ccCoefficient:
+            data[semester][unit][subject].CC?.[0]?.assessment.subject
+              .ccCoefficient || 0,
+          tpCoefficient:
+            data[semester][unit][subject].TP?.[0]?.assessment.subject
+              .tpCoefficient || 0,
+        };
+
+        const subjectAverage = calculateWeightedAverage(
+          data[semester][unit][subject],
+          subjectCoefficients,
+        );
+        data[semester][unit][subject].average = subjectAverage;
+
+        unitTotalAverage += subjectAverage;
+        numberOfSubjects += 1;
+      });
+
+      // Calcul de la moyenne pour chaque UE
+      const unitAverage =
+        numberOfSubjects > 0 ? unitTotalAverage / numberOfSubjects : 0;
+      data[semester][unit].average = unitAverage;
+
+      semesterTotalAverage += unitAverage;
+      numberOfUnits += 1;
+    });
+
+    // Calcul de la moyenne pour chaque semestre
+    data[semester].average =
+      numberOfUnits > 0 ? semesterTotalAverage / numberOfUnits : 0;
   });
 
-  return semesters;
-};
+  return data;
+}

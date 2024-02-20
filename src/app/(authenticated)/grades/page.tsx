@@ -15,8 +15,7 @@ export default async function GradesPage() {
     queryKey: ["grades"],
     queryFn: async () =>
       await getAllGradesWithInformation(
-        // session?.student.studentNumber as string,
-        "22301872",
+        session?.student.studentNumber as string,
       ),
   });
 
@@ -25,11 +24,6 @@ export default async function GradesPage() {
   }
   return (
     <Container>
-      <h1
-        className={"w-full items-center text-center font-bold justify-center"}
-      >
-        Notes
-      </h1>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <GradesComponent studentNumber={session.student.studentNumber} />
       </HydrationBoundary>

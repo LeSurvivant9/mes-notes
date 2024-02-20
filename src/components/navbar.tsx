@@ -23,7 +23,7 @@ const routes = [
 
 export const Navbar = () => {
   return (
-    <header className="fixed left-0 top-0 w-full py-3 px-4 border-b bg-transparent z-50">
+    <header className="fixed left-0 top-0 w-full py-3 px-4 border-b z-50 bg-background">
       <div className="flex items-center justify-between w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16">
         <div className={"flex items-center"}>
           <Sheet>
