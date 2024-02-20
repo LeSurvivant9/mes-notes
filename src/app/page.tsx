@@ -24,7 +24,7 @@ export default function Home() {
           <p>
             Ce site est toujours en construction, je taffe dessus depuis déjà 2
             mois pour vous sortir quelque chose de qualitatif, aujourd'hui c'est
-            la release v1.1, et j'ai déjà prévu une v5.0, le site est et sera en
+            la release v1.4, et j'ai déjà prévu une v5.0, le site est et sera en
             constante évolution. De plus, si tu as des idées d'améliorations,
             n'hésites surtout pas à venir me voir en pv Insta, je suis ouvert à
             la discussion.
