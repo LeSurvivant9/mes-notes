@@ -66,7 +66,8 @@ function Subject({
   return (
     <div className={"ml-4 my-4 box-border border-2"}>
       <h3>
-        ✧ {subjectName} | Moyenne : {subjectData.average?.toFixed(3)}
+        ✧ {subjectName} | Moyenne : {subjectData.average?.toFixed(3)} | Poids :{" "}
+        {subjectData.EXAM?.[0]?.assessment.subject.coefficient}
       </h3>
       {Object.keys(subjectData)
         .filter((type) => type !== "average")

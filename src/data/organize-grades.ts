@@ -101,11 +101,11 @@ export function calculateAverages(
 
   Object.keys(data).forEach((semester: any) => {
     let semesterTotalAverage = 0;
-    let numberOfUnits = 0;
+    let semesterTotalCoefficient = 0;
 
     Object.keys(data[semester]).forEach((unit) => {
       let unitTotalAverage = 0;
-      let numberOfSubjects = 0;
+      let unitTotalCoefficient = 0;
 
       Object.keys(data[semester][unit]).forEach((subject) => {
         // Exclude 'average' property
@@ -130,22 +130,27 @@ export function calculateAverages(
         );
         data[semester][unit][subject].average = subjectAverage;
 
-        unitTotalAverage += subjectAverage;
-        numberOfSubjects += 1;
+        const subjectCoefficient =
+          data[semester][unit][subject].EXAM?.[0]?.assessment.subject
+            .coefficient || 0;
+        unitTotalAverage += subjectAverage * subjectCoefficient;
+        unitTotalCoefficient += subjectCoefficient;
       });
 
       // Calcul de la moyenne pour chaque UE
       const unitAverage =
-        numberOfSubjects > 0 ? unitTotalAverage / numberOfSubjects : 0;
+        unitTotalCoefficient > 0 ? unitTotalAverage / unitTotalCoefficient : 0;
       data[semester][unit].average = unitAverage;
 
-      semesterTotalAverage += unitAverage;
-      numberOfUnits += 1;
+      semesterTotalAverage += unitAverage * unitTotalCoefficient;
+      semesterTotalCoefficient += unitTotalCoefficient;
     });
 
     // Calcul de la moyenne pour chaque semestre
     data[semester].average =
-      numberOfUnits > 0 ? semesterTotalAverage / numberOfUnits : 0;
+      semesterTotalCoefficient > 0
+        ? semesterTotalAverage / semesterTotalCoefficient
+        : 0;
   });
 
   return data;
