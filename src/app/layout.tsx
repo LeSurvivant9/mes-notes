@@ -10,7 +10,7 @@ import Providers from "@/lib/providers";
 import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
 
-const inter = Inter({ subsets: ["latin"], weight: ["600"] });
+const inter = Inter({ subsets: ["latin"], weight: ["600", "800"] });
 const rubik = Rubik({ subsets: ["latin"], weight: ["600"] });
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default async function RootLayout({
   return (
     <SessionProvider session={session}>
       <html lang="fr" className={"h-full"}>
-        <body className={clsx(rubik.className, "w-full h-full")}>
+        <body className={clsx(inter.className, "w-full h-full")}>
           <Toaster />
           <SpeedInsights />
           <Analytics />

@@ -1,6 +1,6 @@
-import * as z from "zod";
-import { UserRole } from "@prisma/client";
-import { CompleteAccount, RelatedAccountSchema } from "./index";
+import * as z from "zod"
+import { UserRole } from "@prisma/client"
+import { CompleteAccount, RelatedAccountSchema } from "./index"
 
 export const UserSchema = z.object({
   id: z.string(),
@@ -13,10 +13,10 @@ export const UserSchema = z.object({
   emailVerified: z.date().nullish(),
   createdAt: z.date(),
   updatedAt: z.date(),
-});
+})
 
 export interface CompleteUser extends z.infer<typeof UserSchema> {
-  account: CompleteAccount[];
+  account: CompleteAccount[]
 }
 
 /**
@@ -24,8 +24,6 @@ export interface CompleteUser extends z.infer<typeof UserSchema> {
  *
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
-export const RelatedUserSchema: z.ZodSchema<CompleteUser> = z.lazy(() =>
-  UserSchema.extend({
-    account: RelatedAccountSchema.array(),
-  }),
-);
+export const RelatedUserSchema: z.ZodSchema<CompleteUser> = z.lazy(() => UserSchema.extend({
+  account: RelatedAccountSchema.array(),
+}))
