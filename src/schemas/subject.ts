@@ -1,10 +1,5 @@
-import * as z from "zod";
-import {
-  CompleteTeachingUnit,
-  RelatedTeachingUnitSchema,
-  CompleteAssessment,
-  RelatedAssessmentSchema,
-} from "./index";
+import * as z from "zod"
+import { CompleteTeachingUnit, RelatedTeachingUnitSchema, CompleteAssessment, RelatedAssessmentSchema } from "./index"
 
 export const SubjectSchema = z.object({
   id: z.string(),
@@ -14,11 +9,11 @@ export const SubjectSchema = z.object({
   tpCoefficient: z.number().int().nullish(),
   examCoefficient: z.number().int().nullish(),
   teachingUnitId: z.string(),
-});
+})
 
 export interface CompleteSubject extends z.infer<typeof SubjectSchema> {
-  teachingUnit: CompleteTeachingUnit;
-  assessments: CompleteAssessment[];
+  teachingUnit: CompleteTeachingUnit
+  assessments: CompleteAssessment[]
 }
 
 /**
@@ -26,9 +21,7 @@ export interface CompleteSubject extends z.infer<typeof SubjectSchema> {
  *
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
-export const RelatedSubjectSchema: z.ZodSchema<CompleteSubject> = z.lazy(() =>
-  SubjectSchema.extend({
-    teachingUnit: RelatedTeachingUnitSchema,
-    assessments: RelatedAssessmentSchema.array(),
-  }),
-);
+export const RelatedSubjectSchema: z.ZodSchema<CompleteSubject> = z.lazy(() => SubjectSchema.extend({
+  teachingUnit: RelatedTeachingUnitSchema,
+  assessments: RelatedAssessmentSchema.array(),
+}))
