@@ -145,8 +145,8 @@ export function calculateAverages(
         unitTotalCoefficient > 0 ? unitTotalAverage / unitTotalCoefficient : 0;
       data[semester][unit].average = unitAverage;
 
-      semesterTotalAverage += unitAverage * unitTotalCoefficient;
-      semesterTotalCoefficient += unitTotalCoefficient;
+      semesterTotalAverage += unitAverage;
+      semesterTotalCoefficient += 1;
     });
 
     // Calcul de la moyenne pour chaque semestre

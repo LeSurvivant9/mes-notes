@@ -160,7 +160,11 @@ export default function GradesComponent({
     error,
   } = useQuery({
     queryKey: ["grades"],
-    queryFn: async () => await getAllGradesWithInformation(studentNumber),
+    queryFn: async () =>
+      await getAllGradesWithInformation(
+        // studentNumber,
+        "22301872",
+      ),
   });
 
   if (isLoading) {
@@ -177,7 +181,8 @@ export default function GradesComponent({
       </p>
     );
   }
-  if (!studentGrades) {
+
+  if (studentGrades?.length === 0) {
     return (
       <p className={"w-full h-full items-center top-1/2 left-1/2"}>
         Il n'y aucune note pour le moment.
