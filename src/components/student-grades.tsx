@@ -82,7 +82,10 @@ function Subject({
         <AccordionTrigger className={"hover:no-underline"}>
           <h3>
             ✧ {subjectName} | Moyenne : {subjectData.average?.toFixed(3)} |
-            Poids : {subjectData.EXAM?.[0]?.assessment.subject.coefficient}
+            Poids :{" "}
+            {subjectData.EXAM
+              ? subjectData.EXAM?.[0]?.assessment.subject.coefficient
+              : subjectData.CC?.[0]?.assessment.subject.coefficient}
           </h3>
         </AccordionTrigger>
         <AccordionContent>
@@ -157,7 +160,11 @@ export default function GradesComponent({
     error,
   } = useQuery({
     queryKey: ["grades"],
-    queryFn: async () => await getAllGradesWithInformation(studentNumber),
+    queryFn: async () =>
+      await getAllGradesWithInformation(
+        // studentNumber,
+        "22301872",
+      ),
   });
 
   if (isLoading) {

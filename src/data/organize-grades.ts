@@ -132,7 +132,10 @@ export function calculateAverages(
 
         const subjectCoefficient =
           data[semester][unit][subject].EXAM?.[0]?.assessment.subject
-            .coefficient || 0;
+            .coefficient ||
+          data[semester][unit][subject].CC?.[0]?.assessment.subject
+            .coefficient ||
+          0;
         unitTotalAverage += subjectAverage * subjectCoefficient;
         unitTotalCoefficient += subjectCoefficient;
       });
