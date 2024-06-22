@@ -137,9 +137,10 @@ export default function GradesComponent({
       </p>
     );
   }
-  if (!studentGrades) {
+
+  if (!studentGrades || studentGrades.length === 0) {
     return (
-      <p className={"w-full h-full items-center top-1/2 left-1/2"}>
+      <p className={"w-full h-full text-center text-2xl py-5"}>
         Il n'y aucune note pour le moment.
       </p>
     );

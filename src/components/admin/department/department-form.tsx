@@ -80,7 +80,7 @@ const DepartmentForm = ({
                   <Input
                     {...field}
                     disabled={isPending}
-                    placeholder={"Sciences Humaines pour l'Ingénieur"}
+                    placeholder={"Sciences et Humanités pour l’Ingénieur"}
                     type={"text"}
                   />
                 </FormControl>

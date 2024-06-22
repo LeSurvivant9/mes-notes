@@ -16,7 +16,7 @@ import { fetchGrades } from "@/data/get-all-datas";
 import { deleteGrade } from "@/actions/admin/grade.actions";
 import GradeForm from "@/components/admin/grade/grade-form";
 
-const GradePage = () => {
+const GradeComponent = () => {
   const grades = useGradeStore((state) => state.grades);
   const assessments = useAssessmentStore((state) => state.assessments);
   const subjects = useSubjectStore((state) => state.subjects);
@@ -105,4 +105,4 @@ const GradePage = () => {
   );
 };
 
-export default GradePage;
+export default GradeComponent;

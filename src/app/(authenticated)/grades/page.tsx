@@ -19,7 +19,7 @@ export default async function GradesPage() {
       ),
   });
 
-  if (!session?.student.studentNumber) {
+  if (!session?.student?.studentNumber) {
     return <p>Vous n'êtes pas connecté</p>;
   }
   return (

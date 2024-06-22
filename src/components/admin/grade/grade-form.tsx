@@ -166,18 +166,14 @@ const GradeForm = ({
 
     const formData = new FormData();
     formData.append("file", files[0]);
-    const response = await uploadPdfFile(formData);
-    const grades: {
-      studentNumber: string;
-      value: number;
-    }[] = JSON.parse(response.grades);
-
+    const grades: { studentNumber: string; value: number }[] =
+      await uploadPdfFile(formData);
     if (grades.length === 0) {
       setError("Aucune note à uploader");
       return;
     }
     setGrades(grades as z.infer<typeof GradeSchema>[]);
-    setFileUrl(response.url);
+    setFileUrl("");
     setIsPreview(true);
   };
 
