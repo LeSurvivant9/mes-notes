@@ -98,8 +98,9 @@ export default function GradesComponent({
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["grades"],
+    queryKey: ["grades", studentNumber],
     queryFn: async () => await getAllGradesWithInformations(studentNumber),
+    enabled: !!studentNumber,
   });
 
   if (isLoading) {
