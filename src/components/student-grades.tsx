@@ -1,30 +1,37 @@
 "use client";
-import { getAllGradesWithInformation } from "@/actions/admin/grade.actions";
+import { getAllGradesWithInformations } from "@/actions/admin/grade.actions";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { calculateAverages, organizeData } from "@/data/organize-grades";
+import {
+  AveragesType,
+  calculateAverages,
+  GroupedGrades,
+  organizeGrades,
+} from "@/data/organize-grades";
 
 function Semester({
   semesterData,
   semesterNumber,
+  average,
+  averages,
 }: {
   semesterData: any;
   semesterNumber: number;
+  average: number;
+  averages: any;
 }) {
-  const unitNames = Object.keys(semesterData).filter(
-    (key) => key !== "average",
-  );
+  const unitIds = Object.keys(semesterData);
 
   return (
     <div>
       <h1 className={"w-full text-center my-2"}>
-        Semestre {semesterNumber} | {semesterData.average?.toFixed(3)}
+        Semestre {semesterNumber} | Moyenne : {average?.toFixed(3)}
       </h1>
-      {unitNames.map((unitName) => (
+      {unitIds.map((unitId) => (
         <TeachingUnit
-          key={unitName}
-          unitData={semesterData[unitName]}
-          unitName={unitName}
+          key={unitId}
+          unitData={semesterData[unitId]}
+          average={averages.ues[unitId].average}
+          averages={averages.ues[unitId].subjects}
         />
       ))}
     </div>
@@ -33,76 +40,48 @@ function Semester({
 
 function TeachingUnit({
   unitData,
-  unitName,
+  average,
+  averages,
 }: {
   unitData: any;
-  unitName: string;
+  average: number;
+  averages: any;
 }) {
   return (
     <div>
       <h2 className={"bg-emerald-100 dark:bg-white dark:text-black"}>
-        {unitName} | Moyenne : {unitData.average?.toFixed(3)}
+        {unitData.teachingUnit.name} | Moyenne : {average?.toFixed(3)}
       </h2>
-      {Object.keys(unitData)
-        .filter((subjectName) => subjectName !== "average")
-        .map((subjectName) => (
-          <Subject
-            key={subjectName}
-            subjectData={unitData[subjectName]}
-            subjectName={subjectName}
-          />
-        ))}
+      {Object.keys(unitData.subjects).map((subjectId) => (
+        <Subject
+          key={subjectId}
+          subjectData={unitData.subjects[subjectId]}
+          average={averages[subjectId].average}
+        />
+      ))}
     </div>
   );
 }
 
 function Subject({
   subjectData,
-  subjectName,
+  average,
 }: {
   subjectData: any;
-  subjectName: string;
+  average: number;
 }) {
   return (
     <div className={"ml-4 my-4 box-border border-2"}>
       <h3>
-        ✧ {subjectName} | Moyenne : {subjectData.average?.toFixed(3)}
+        ✧ {subjectData.subject.name} | Moyenne : {average?.toFixed(3)} | Poids :{" "}
+        {subjectData.subject.coefficient}
       </h3>
-      {Object.keys(subjectData)
-        .filter((type) => type !== "average")
-        .map((type) => (
-          <Assessment
-            key={type}
-            assessmentType={type}
-            grades={subjectData[type]}
-          />
-        ))}
-    </div>
-  );
-}
-
-function Assessment({
-  assessmentType,
-  grades,
-}: {
-  assessmentType: string;
-  grades: any;
-}) {
-  return (
-    <div>
-      {grades.map((grade: any, index: number) => (
+      {subjectData.assessments.map((assessment: any, index: number) => (
         <div key={index} className="ml-4 my-2">
-          •{" "}
-          <Link
-            href={grade.assessment.fileName}
-            target={"_blank"}
-            rel={"noonpener noreferrer"}
-            className={"hover:underline"}
-          >
-            {grade.assessment.fileName.split("/").pop()?.substring(0, 30)}
-          </Link>{" "}
-          | Note: {grade.value} | Type : {assessmentType} (Coeff{" "}
-          {grade.assessment.coefficient}) | Période : {grade.assessment.period}
+          • {assessment.assessment.fileName} | Note: {assessment.grade.value} |
+          Type : {assessment.assessment.type} (Coeff{" "}
+          {assessment.assessment.coefficient}) | Période :{" "}
+          {assessment.assessment.period}
         </div>
       ))}
     </div>
@@ -120,7 +99,7 @@ export default function GradesComponent({
     error,
   } = useQuery({
     queryKey: ["grades"],
-    queryFn: async () => await getAllGradesWithInformation(studentNumber),
+    queryFn: async () => await getAllGradesWithInformations(studentNumber),
   });
 
   if (isLoading) {
@@ -141,11 +120,13 @@ export default function GradesComponent({
   if (!studentGrades || studentGrades.length === 0) {
     return (
       <p className={"w-full h-full text-center text-2xl py-5"}>
-        Il n'y aucune note pour le moment.
+        Il n'y a aucune note pour le moment.
       </p>
     );
   }
-  const organizedGrades = calculateAverages(organizeData(studentGrades));
+
+  const organizedGrades: GroupedGrades = organizeGrades(studentGrades);
+  const averages: AveragesType = calculateAverages(organizedGrades);
 
   return (
     <div>
@@ -153,7 +134,9 @@ export default function GradesComponent({
         <Semester
           key={semester}
           semesterData={organizedGrades[semester]}
-          semesterNumber={semester}
+          semesterNumber={parseInt(semester, 10)}
+          average={averages.semesters[semester].average}
+          averages={averages.semesters[semester]}
         />
       ))}
     </div>

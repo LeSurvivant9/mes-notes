@@ -2,7 +2,7 @@
 import { GradeSchema } from "@/schemas";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
-import { GradesWithInformationType } from "@/data/organize-grades";
+import { GradesWithInformationsType } from "@/data/organize-grades";
 
 export const getAllGrades = async () => {
   return prisma.grade.findMany({
@@ -20,7 +20,9 @@ export const getGradeByKey = async (key: string, value: string) => {
   });
 };
 
-export async function getAllGradesWithInformation(studentNumber: string) {
+export const getAllGradesWithInformations = async (
+  studentNumber: string,
+): Promise<GradesWithInformationsType[]> => {
   return prisma.grade.findMany({
     where: {
       studentNumber,
@@ -36,8 +38,11 @@ export async function getAllGradesWithInformation(studentNumber: string) {
         },
       },
     },
-  }) as Promise<GradesWithInformationType[]>;
-}
+    orderBy: {
+      id: "asc",
+    },
+  }) as Promise<GradesWithInformationsType[]>;
+};
 
 export const createGrade = async (data: z.infer<typeof GradeSchema>) => {
   try {
