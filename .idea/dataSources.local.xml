@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal" created-in="PY-241.18034.82">
+  <component name="dataSourceStorageLocal" created-in="WS-241.18034.50">
     <data-source name="yape1577_mesnotes@yape1577.odns.fr" uuid="8a40818e-37cb-4e09-a4e4-bff6875c9497">
       <database-info product="MariaDB" version="10.6.18-MariaDB" jdbc-version="4.2" driver-name="MariaDB Connector/J" driver-version="3.3.3" dbms="MARIADB" exact-version="10.6.18" exact-driver-version="3.3">
         <extra-name-characters>#@</extra-name-characters>
