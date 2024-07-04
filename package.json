@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "prisma generate && next build"
+    "vercel-build": "prisma generate --no-engine && next build"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^1.6.0",
@@ -39,7 +39,7 @@
     "clsx": "^2.1.1",
     "crypto-browserify": "^3.12.0",
     "embla-carousel-react": "8.0.0-rc22",
-    "framer-motion": "^11.2.12",
+    "framer-motion": "^11.2.13",
     "lucide-react": "^0.323.0",
     "next": "14.1.0",
     "next-auth": "5.0.0-beta.9",

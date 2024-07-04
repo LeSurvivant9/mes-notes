@@ -5,8 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e4e9677f-f930-4bc7-bee7-c1227b2a634e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/student-grades.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/student-grades.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/(protected)/admin/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(protected)/admin/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/prisma.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/prisma.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/account.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/account.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/assessment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/assessment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/department.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/department.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/grade.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/grade.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/passwordresettoken.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/passwordresettoken.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/professor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/professor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/student.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/student.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/subject.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/subject.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/teachingunit.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/teachingunit.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/user.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schemas/verificationtoken.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schemas/verificationtoken.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,6 +66,9 @@
       </RecentBranches>
     </option>
   </component>
+  <component name="NamedScopeManager">
+    <scope name="Main" pattern="file[mes-notes]:*/&amp;&amp;!file[mes-notes]:.idea/*&amp;&amp;!file[mes-notes]:.venv/*" />
+  </component>
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/package.json" />
   </component>
@@ -68,30 +89,31 @@
     <option name="showMembers" value="true" />
     <option name="showScratchesAndConsoles" value="false" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;Python.database.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;development&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\LS\\Work\\mes-notes\\node_modules\\prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\LS\\Work\\mes-notes\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Python.database.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\LS\\Work\\mes-notes\\node_modules\\prettier",
+    "settings.editor.selected.configurable": "project.scopes",
+    "ts.external.directory.path": "C:\\Users\\LS\\Work\\mes-notes\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mariadb&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mariadb",
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -150,8 +172,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.18034.82" />
-        <option value="bundled-python-sdk-975db3bf15a3-2767605e8bc2-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.18034.82" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.18034.50" />
       </set>
     </attachedChunks>
   </component>
@@ -171,6 +192,7 @@
       <workItem from="1719926507880" duration="4979000" />
       <workItem from="1720016545241" duration="9251000" />
       <workItem from="1720043535138" duration="2542000" />
+      <workItem from="1720082845760" duration="10377000" />
     </task>
     <servers />
   </component>

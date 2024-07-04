@@ -10,9 +10,9 @@ export default async function AdminPage() {
     <ThemeProvider attribute={"class"} defaultTheme={"system"} enableSystem>
       <Navbar />
       <Container>
-        <RoleGate allowedRole={"ADMIN"}>
-          <AdminComponent />
-        </RoleGate>
+        {/*<RoleGate allowedRole={"ADMIN"}>*/}
+        <AdminComponent />
+        {/*</RoleGate>*/}
       </Container>
     </ThemeProvider>
   );
