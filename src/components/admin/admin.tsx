@@ -10,7 +10,7 @@ import DepartmentComponent from "@/components/admin/department/department";
 import TeachingUnitComponent from "@/components/admin/teaching-unit/teaching-unit";
 import SubjectComponent from "@/components/admin/subject/subject";
 import AssessmentComponent from "@/components/admin/assessment/assessment";
-import GradePage from "@/components/admin/grade/grade";
+import GradeComponent from "@/components/admin/grade/grade";
 import StudentComponent from "@/components/admin/student/student";
 import { fetchAllData } from "@/data/get-all-datas";
 
@@ -51,7 +51,7 @@ const AdminComponent = () => {
         <AccordionItem value={"grades"}>
           <AccordionTrigger>Notes</AccordionTrigger>
           <AccordionContent>
-            <GradePage />
+            <GradeComponent />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value={"students"}>

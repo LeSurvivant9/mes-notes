@@ -11,14 +11,6 @@ const routes = [
     href: "/grades",
     label: "Notes",
   },
-  {
-    href: "/simulator",
-    label: "Simulateur",
-  },
-  {
-    href: "/admin",
-    label: "Admin",
-  },
 ];
 
 export const Navbar = () => {
@@ -54,7 +46,6 @@ export const Navbar = () => {
             <h1>Mes Notes</h1>
           </Link>
         </div>
-
         <div className="flex-1 justify-center hidden md:flex">
           {routes.map((route, i) => (
             <Button key={i} variant="ghost" asChild>

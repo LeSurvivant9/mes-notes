@@ -5,7 +5,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAllGradesWithInformation } from "@/actions/admin/grade.actions";
+import { getAllGradesWithInformations } from "@/actions/admin/grade.actions";
 import { auth } from "@/auth";
 
 export default async function GradesPage() {
@@ -14,12 +14,12 @@ export default async function GradesPage() {
   await queryClient.prefetchQuery({
     queryKey: ["grades"],
     queryFn: async () =>
-      await getAllGradesWithInformation(
+      await getAllGradesWithInformations(
         session?.student.studentNumber as string,
       ),
   });
 
-  if (!session?.student.studentNumber) {
+  if (!session?.student?.studentNumber) {
     return <p>Vous n'êtes pas connecté</p>;
   }
   return (

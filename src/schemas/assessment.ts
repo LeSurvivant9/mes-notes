@@ -10,10 +10,11 @@ import {
 export const AssessmentSchema = z.object({
   id: z.string(),
   type: z.nativeEnum(AssessmentType),
+  isCatchUp: z.boolean(),
   date: z.date(),
   coefficient: z.number().int(),
   fileName: z.string(),
-  period: z.number().int(),
+  period: z.number().int().nullish(),
   subjectId: z.string(),
 });
 

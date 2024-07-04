@@ -1,171 +1,172 @@
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  // directUrl    = env("DIRECT_DATABASE_URL")
-  relationMode = "prisma"
+	provider     = "mysql"
+	url          = env("DATABASE_URL")
+	relationMode = "prisma"
 }
 
 generator client {
-  provider = "prisma-client-js"
+	provider = "prisma-client-js"
 }
 
 generator zod {
-  provider              = "zod-prisma"
-  output                = "../src/schemas" // (default) the directory where generated zod schemas will be saved
-  relationModel         = true // (default) Create and export both plain and related models.
-  // relationModel         = "default" // Do not export model without relations.
-  // relationModel         = false // Do not generate related model
-  modelCase             = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
-  // modelCase             = "camelCase" // Output models using camel case (ex. userModel, postModel)
-  modelSuffix           = "Schema" // (default) Suffix to apply to your prisma models when naming Zod schemas
-  useDecimalJs          = false // (default) represent the prisma Decimal type using as a JS number
-  // useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
-  // imports = null // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
-  // https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
-  prismaJsonNullability = true // (default) uses prisma's scheme for JSON field nullability
-  // prismaJsonNullability = false // allows null assignment to optional JSON fields
+	provider              = "zod-prisma"
+	output                = "../src/schemas" // (default) the directory where generated zod schemas will be saved
+	relationModel         = true // (default) Create and export both plain and related models.
+	// relationModel         = "default" // Do not export model without relations.
+	// relationModel         = false // Do not generate related model
+	modelCase             = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
+	// modelCase             = "camelCase" // Output models using camel case (ex. userModel, postModel)
+	modelSuffix           = "Schema" // (default) Suffix to apply to your prisma models when naming Zod schemas
+	useDecimalJs          = false // (default) represent the prisma Decimal type using as a JS number
+	// useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
+	// imports = null // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
+	// https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
+	prismaJsonNullability = true // (default) uses prisma's scheme for JSON field nullability
+	// prismaJsonNullability = false // allows null assignment to optional JSON fields
 }
 
 model Department {
-  id            String         @id @default(cuid())
-  name          String         @unique @db.VarChar(255)
-  teachingUnits TeachingUnit[]
-  students      Student[]
+	id            String         @id @default(cuid())
+	name          String         @unique @db.VarChar(255)
+	teachingUnits TeachingUnit[]
+	students      Student[]
 }
 
 model TeachingUnit {
-  id           String     @id @default(cuid())
-  name         String     @db.VarChar(255)
-  semester     Int
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  departmentId String
-  subjects     Subject[]
+	id           String     @id @default(cuid())
+	name         String     @db.VarChar(255)
+	semester     Int
+	department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+	departmentId String
+	subjects     Subject[]
 
-  @@index([departmentId], name: "teaching_unit_index_0")
+	@@index([departmentId], name: "teaching_unit_index_0")
 }
 
 model Subject {
-  id              String       @id @default(cuid())
-  name            String       @db.VarChar(255)
-  coefficient     Int
-  ccCoefficient   Int?
-  tpCoefficient   Int?
-  examCoefficient Int?
-  teachingUnit    TeachingUnit @relation(fields: [teachingUnitId], references: [id], onDelete: Cascade)
-  teachingUnitId  String
-  assessments     Assessment[]
+	id              String       @id @default(cuid())
+	name            String       @db.VarChar(255)
+	coefficient     Int
+	ccCoefficient   Int?
+	tpCoefficient   Int?
+	examCoefficient Int?
+	teachingUnit    TeachingUnit @relation(fields: [teachingUnitId], references: [id], onDelete: Cascade)
+	teachingUnitId  String
+	assessments     Assessment[]
 
-  @@index([teachingUnitId], name: "subject_index_0")
+	@@index([teachingUnitId], name: "subject_index_0")
 }
 
 enum AssessmentType {
-  CC
-  TP
-  EXAM
+	CC
+	TP
+	EXAM
+	CATCH
 }
 
 model Assessment {
-  id          String         @id @default(cuid())
-  type        AssessmentType
-  date        DateTime       @default(now())
-  coefficient Int
-  fileName    String         @db.VarChar(255)
-  period      Int
-  subject     Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  subjectId   String
-  grades      Grade[]
+	id          String         @id @default(cuid())
+	type        AssessmentType
+	isCatchUp   Boolean        @default(false)
+	date        DateTime       @default(now())
+	coefficient Int
+	fileName    String         @db.VarChar(255)
+	period      Int?
+	subject     Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+	subjectId   String
+	grades      Grade[]
 
-  @@index([subjectId], name: "assessment_index_0")
+	@@index([subjectId], name: "assessment_index_0")
 }
 
 model Grade {
-  id            String     @id @default(cuid())
-  value         Float
-  student       Student    @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
-  studentNumber String
-  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  assessmentId  String
+	id            String     @id @default(cuid())
+	value         Float
+	student       Student    @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
+	studentNumber String
+	assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+	assessmentId  String
 
-  @@index([studentNumber], name: "grade_index_0")
-  @@index([assessmentId], name: "grade_index_1")
+	@@index([studentNumber], name: "grade_index_0")
+	@@index([assessmentId], name: "grade_index_1")
 }
 
 enum UserRole {
-  ADMIN
-  USER
+	ADMIN
+	USER
 }
 
 model User {
-  id             String    @id @default(cuid())
-  name           String
-  email          String    @unique
-  username       String?   @unique @db.VarChar(30)
-  image          String?   @db.VarChar(255)
-  hashedPassword String?   @db.VarChar(255)
-  role           UserRole  @default(USER)
-  emailVerified  DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  account        Account[]
+	id             String    @id @default(cuid())
+	name           String
+	email          String    @unique
+	username       String?   @unique @db.VarChar(30)
+	image          String?   @db.VarChar(255)
+	hashedPassword String?   @db.VarChar(255)
+	role           UserRole  @default(USER)
+	emailVerified  DateTime?
+	createdAt      DateTime  @default(now())
+	updatedAt      DateTime  @updatedAt
+	account        Account[]
 }
 
 model Student {
-  studentNumber String     @id
-  lastName      String     @db.VarChar(50)
-  firstName     String     @db.VarChar(50)
-  entryYear     Int?
-  level         Int
-  department    Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  departmentId  String
-  account       Account[]
-  grades        Grade[]
+	studentNumber String     @id
+	lastName      String     @db.VarChar(50)
+	firstName     String     @db.VarChar(50)
+	entryYear     Int?
+	level         Int
+	department    Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+	departmentId  String
+	account       Account[]
+	grades        Grade[]
 
-  @@index([studentNumber], name: "student_index_0")
-  @@index([departmentId], name: "student_index_1")
+	@@index([studentNumber], name: "student_index_0")
+	@@index([departmentId], name: "student_index_1")
 }
 
 model Professor {
-  id        String    @id @default(cuid())
-  lastName  String    @db.VarChar(50)
-  firstName String    @db.VarChar(50)
-  account   Account[]
+	id        String    @id @default(cuid())
+	lastName  String    @db.VarChar(50)
+	firstName String    @db.VarChar(50)
+	account   Account[]
 }
 
 enum AccountType {
-  STUDENT
-  PROFESSOR
+	STUDENT
+	PROFESSOR
 }
 
 model Account {
-  id            String      @id @default(cuid())
-  userId        String
-  studentNumber String?
-  professorId   String?
-  type          AccountType
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  student       Student?    @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
-  professor     Professor?  @relation(fields: [professorId], references: [id], onDelete: Cascade)
+	id            String      @id @default(cuid())
+	userId        String
+	studentNumber String?
+	professorId   String?
+	type          AccountType
+	user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+	student       Student?    @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
+	professor     Professor?  @relation(fields: [professorId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, studentNumber])
-  @@unique([userId, professorId])
-  @@index([studentNumber], name: "account_studentId_idx")
-  @@index([professorId], name: "account_professorId_idx")
+	@@unique([userId, studentNumber])
+	@@unique([userId, professorId])
+	@@index([studentNumber], name: "account_studentId_idx")
+	@@index([professorId], name: "account_professorId_idx")
 }
 
 model VerificationToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+	id      String   @id @default(cuid())
+	email   String
+	token   String   @unique
+	expires DateTime
 
-  @@unique([email, token])
+	@@unique([email, token])
 }
 
 model PasswordResetToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+	id      String   @id @default(cuid())
+	email   String
+	token   String   @unique
+	expires DateTime
 
-  @@unique([email, token])
+	@@unique([email, token])
 }

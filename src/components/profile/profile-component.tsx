@@ -31,7 +31,7 @@ export default function ProfileComponent({
             <span>Email : {user?.email}</span>
           </CardContent>
           <CardContent>
-            <span>Numéro étudiant : {session?.student.studentNumber}</span>
+            <span>Numéro étudiant : {session?.student?.studentNumber}</span>
           </CardContent>
         </Card>
       </div>
